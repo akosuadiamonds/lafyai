@@ -100,6 +100,8 @@ function DashboardPage() {
         ))}
       </div>
 
+      <CoverageSummary />
+
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-4">

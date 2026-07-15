@@ -13,7 +13,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/lafy/page-header";
-import { SITES, PROGRAMS, ANTIGENS, SE_ALERTS } from "@/lib/lafy-data";
+import { SITES, PROGRAMS, ANTIGENS, SE_ALERTS, FACILITY_ADHERENCE_TREND } from "@/lib/lafy-data";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 export const Route = createFileRoute("/implementor/facilities/$slug")({
   head: () => ({
@@ -67,6 +76,42 @@ function FacilityProfilePage() {
         <Stat label="Engagement" value={`${s.engagement}%`} icon={<Users className="h-4 w-4 text-primary" />} />
         <Stat label="D-1 confirm" value={`${s.d1}%`} icon={<Calendar className="h-4 w-4 text-primary" />} />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" /> Adherence trend
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">On-time adherence over the last 8 weeks.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="h-56 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={FACILITY_ADHERENCE_TREND} margin={{ top: 8, right: 16, left: -12, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="adhFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="week" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis domain={[0, 100]} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} width={32} />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsl(var(--popover))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  formatter={(v: number) => [`${v}%`, "Adherence"]}
+                />
+                <Area type="monotone" dataKey="adherence" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#adhFill)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

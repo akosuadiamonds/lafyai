@@ -9,6 +9,7 @@ import {
   Leaf,
   Bell,
   Search,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/implementor")({
 
 const NAV = [
   { to: "/implementor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/implementor/patients", label: "Patients", icon: Users },
   { to: "/implementor/coverage", label: "Coverage", icon: Syringe },
   { to: "/implementor/facilities", label: "Facilities", icon: Building2 },
   { to: "/implementor/programs", label: "Programs", icon: FolderKanban },

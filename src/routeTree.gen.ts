@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ImplementorRouteImport } from './routes/implementor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
+import { Route as ImplementorIndicatorsRouteImport } from './routes/implementor.indicators'
 import { Route as ImplementorFacilitiesRouteImport } from './routes/implementor.facilities'
 import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
 import { Route as ImplementorCoverageRouteImport } from './routes/implementor.coverage'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const ImplementorIndexRoute = ImplementorIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => ImplementorRoute,
+} as any)
+const ImplementorIndicatorsRoute = ImplementorIndicatorsRouteImport.update({
+  id: '/indicators',
+  path: '/indicators',
   getParentRoute: () => ImplementorRoute,
 } as any)
 const ImplementorFacilitiesRoute = ImplementorFacilitiesRouteImport.update({
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
+  '/implementor/indicators': typeof ImplementorIndicatorsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRoutesByTo {
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
+  '/implementor/indicators': typeof ImplementorIndicatorsRoute
   '/implementor': typeof ImplementorIndexRoute
 }
 export interface FileRoutesById {
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
+  '/implementor/indicators': typeof ImplementorIndicatorsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRouteTypes {
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
+    | '/implementor/indicators'
     | '/implementor/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
+    | '/implementor/indicators'
     | '/implementor'
   id:
     | '__root__'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
+    | '/implementor/indicators'
     | '/implementor/'
   fileRoutesById: FileRoutesById
 }
@@ -135,6 +147,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/implementor/'
       preLoaderRoute: typeof ImplementorIndexRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
+    '/implementor/indicators': {
+      id: '/implementor/indicators'
+      path: '/indicators'
+      fullPath: '/implementor/indicators'
+      preLoaderRoute: typeof ImplementorIndicatorsRouteImport
       parentRoute: typeof ImplementorRoute
     }
     '/implementor/facilities': {
@@ -173,6 +192,7 @@ interface ImplementorRouteChildren {
   ImplementorCoverageRoute: typeof ImplementorCoverageRoute
   ImplementorDashboardRoute: typeof ImplementorDashboardRoute
   ImplementorFacilitiesRoute: typeof ImplementorFacilitiesRoute
+  ImplementorIndicatorsRoute: typeof ImplementorIndicatorsRoute
   ImplementorIndexRoute: typeof ImplementorIndexRoute
 }
 
@@ -181,6 +201,7 @@ const ImplementorRouteChildren: ImplementorRouteChildren = {
   ImplementorCoverageRoute: ImplementorCoverageRoute,
   ImplementorDashboardRoute: ImplementorDashboardRoute,
   ImplementorFacilitiesRoute: ImplementorFacilitiesRoute,
+  ImplementorIndicatorsRoute: ImplementorIndicatorsRoute,
   ImplementorIndexRoute: ImplementorIndexRoute,
 }
 

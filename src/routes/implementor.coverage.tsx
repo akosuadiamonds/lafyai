@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Minus, MapPin, Building2, TrendingUp, AlertTriangle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/lafy/page-header";
@@ -12,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ANTIGENS, COVERAGE_BY_LOCATION } from "@/lib/lafy-data";
+import { ANTIGENS, COVERAGE_BY_LOCATION, FACILITIES_BY_LOCATION } from "@/lib/lafy-data";
 
 export const Route = createFileRoute("/implementor/coverage")({
   head: () => ({
@@ -197,6 +198,7 @@ function LocationInsightsDialog({
               <MiniStat label="Facilities" value={String(location.facilities)} icon={<Building2 className="h-4 w-4 text-primary" />} />
               <MiniStat label="Gap to target" value={`${Math.max(0, 90 - location.completion)} pts`} icon={<AlertTriangle className="h-4 w-4 text-amber-500" />} />
             </div>
+            <FacilitiesInLocation locationName={location.location} />
             <div className="border rounded-lg p-4">
               <h4 className="text-sm font-medium mb-3">Antigen coverage in {location.location}</h4>
               <div className="space-y-2">

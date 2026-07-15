@@ -13,6 +13,7 @@ import { Route as ImplementorRouteImport } from './routes/implementor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
 import { Route as ImplementorReportsRouteImport } from './routes/implementor.reports'
+import { Route as ImplementorProgramsRouteImport } from './routes/implementor.programs'
 import { Route as ImplementorFacilitiesRouteImport } from './routes/implementor.facilities'
 import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
 import { Route as ImplementorCoverageRouteImport } from './routes/implementor.coverage'
@@ -37,6 +38,11 @@ const ImplementorReportsRoute = ImplementorReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => ImplementorRoute,
 } as any)
+const ImplementorProgramsRoute = ImplementorProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
+  getParentRoute: () => ImplementorRoute,
+} as any)
 const ImplementorFacilitiesRoute = ImplementorFacilitiesRouteImport.update({
   id: '/facilities',
   path: '/facilities',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
+  '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
+  '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor': typeof ImplementorIndexRoute
 }
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
+  '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
+    | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/'
   fileRoutesByTo: FileRoutesByTo
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
+    | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor'
   id:
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
+    | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/'
   fileRoutesById: FileRoutesById
@@ -144,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorReportsRouteImport
       parentRoute: typeof ImplementorRoute
     }
+    '/implementor/programs': {
+      id: '/implementor/programs'
+      path: '/programs'
+      fullPath: '/implementor/programs'
+      preLoaderRoute: typeof ImplementorProgramsRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
     '/implementor/facilities': {
       id: '/implementor/facilities'
       path: '/facilities'
@@ -172,6 +191,7 @@ interface ImplementorRouteChildren {
   ImplementorCoverageRoute: typeof ImplementorCoverageRoute
   ImplementorDashboardRoute: typeof ImplementorDashboardRoute
   ImplementorFacilitiesRoute: typeof ImplementorFacilitiesRoute
+  ImplementorProgramsRoute: typeof ImplementorProgramsRoute
   ImplementorReportsRoute: typeof ImplementorReportsRoute
   ImplementorIndexRoute: typeof ImplementorIndexRoute
 }
@@ -180,6 +200,7 @@ const ImplementorRouteChildren: ImplementorRouteChildren = {
   ImplementorCoverageRoute: ImplementorCoverageRoute,
   ImplementorDashboardRoute: ImplementorDashboardRoute,
   ImplementorFacilitiesRoute: ImplementorFacilitiesRoute,
+  ImplementorProgramsRoute: ImplementorProgramsRoute,
   ImplementorReportsRoute: ImplementorReportsRoute,
   ImplementorIndexRoute: ImplementorIndexRoute,
 }

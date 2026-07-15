@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ImplementorRouteImport } from './routes/implementor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
+import { Route as ImplementorSeAlertsRouteImport } from './routes/implementor.se-alerts'
 import { Route as ImplementorReportsRouteImport } from './routes/implementor.reports'
 import { Route as ImplementorProgramsRouteImport } from './routes/implementor.programs'
 import { Route as ImplementorFacilitiesRouteImport } from './routes/implementor.facilities'
@@ -31,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 const ImplementorIndexRoute = ImplementorIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => ImplementorRoute,
+} as any)
+const ImplementorSeAlertsRoute = ImplementorSeAlertsRouteImport.update({
+  id: '/se-alerts',
+  path: '/se-alerts',
   getParentRoute: () => ImplementorRoute,
 } as any)
 const ImplementorReportsRoute = ImplementorReportsRouteImport.update({
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
+  '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRoutesByTo {
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
+  '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
   '/implementor': typeof ImplementorIndexRoute
 }
 export interface FileRoutesById {
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
+  '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRouteTypes {
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/implementor/facilities'
     | '/implementor/programs'
     | '/implementor/reports'
+    | '/implementor/se-alerts'
     | '/implementor/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/implementor/facilities'
     | '/implementor/programs'
     | '/implementor/reports'
+    | '/implementor/se-alerts'
     | '/implementor'
   id:
     | '__root__'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/implementor/facilities'
     | '/implementor/programs'
     | '/implementor/reports'
+    | '/implementor/se-alerts'
     | '/implementor/'
   fileRoutesById: FileRoutesById
 }
@@ -147,6 +159,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/implementor/'
       preLoaderRoute: typeof ImplementorIndexRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
+    '/implementor/se-alerts': {
+      id: '/implementor/se-alerts'
+      path: '/se-alerts'
+      fullPath: '/implementor/se-alerts'
+      preLoaderRoute: typeof ImplementorSeAlertsRouteImport
       parentRoute: typeof ImplementorRoute
     }
     '/implementor/reports': {
@@ -193,6 +212,7 @@ interface ImplementorRouteChildren {
   ImplementorFacilitiesRoute: typeof ImplementorFacilitiesRoute
   ImplementorProgramsRoute: typeof ImplementorProgramsRoute
   ImplementorReportsRoute: typeof ImplementorReportsRoute
+  ImplementorSeAlertsRoute: typeof ImplementorSeAlertsRoute
   ImplementorIndexRoute: typeof ImplementorIndexRoute
 }
 
@@ -202,6 +222,7 @@ const ImplementorRouteChildren: ImplementorRouteChildren = {
   ImplementorFacilitiesRoute: ImplementorFacilitiesRoute,
   ImplementorProgramsRoute: ImplementorProgramsRoute,
   ImplementorReportsRoute: ImplementorReportsRoute,
+  ImplementorSeAlertsRoute: ImplementorSeAlertsRoute,
   ImplementorIndexRoute: ImplementorIndexRoute,
 }
 

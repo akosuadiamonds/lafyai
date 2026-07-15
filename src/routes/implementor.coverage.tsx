@@ -235,3 +235,50 @@ function MiniStat({ label, value, icon }: { label: string; value: string; icon: 
     </div>
   );
 }
+
+function FacilitiesInLocation({ locationName }: { locationName: string }) {
+  const facilities = FACILITIES_BY_LOCATION[locationName] ?? [];
+  return (
+    <div className="border rounded-lg p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-primary" /> Facilities in {locationName}
+        </h4>
+        <span className="text-[11px] text-muted-foreground">{facilities.length} listed</span>
+      </div>
+      {facilities.length === 0 ? (
+        <div className="text-xs text-muted-foreground py-4 text-center">No facility roster available.</div>
+      ) : (
+        <ul className="divide-y">
+          {facilities.map((f) => {
+            const bar = f.coverage >= 90 ? "bg-primary" : f.coverage >= 80 ? "bg-amber-500" : "bg-destructive";
+            return (
+              <li key={f.name} className="py-2.5 first:pt-0 last:pb-0">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link
+                      to="/implementor/facilities/$slug"
+                      params={{ slug: encodeURIComponent(f.name) }}
+                      className="text-sm font-medium hover:text-primary truncate block"
+                    >
+                      {f.name}
+                    </Link>
+                    <div className="text-[11px] text-muted-foreground">
+                      {f.district} · {f.type} · {f.babies} enrolled
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 w-40">
+                    <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                      <div className={"h-full " + bar} style={{ width: `${f.coverage}%` }} />
+                    </div>
+                    <span className="text-xs tabular-nums font-semibold w-9 text-right">{f.coverage}%</span>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}

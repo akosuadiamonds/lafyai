@@ -45,6 +45,7 @@ type Cohort = {
   name: string;
   ageBand: string;
   size: number;
+  expectedDate?: string;
   status: "active" | "closed";
 };
 type Program = {

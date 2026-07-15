@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderKanban, Plus, Users, Calendar, ChevronRight } from "lucide-react";
+import { FolderKanban, Plus, Users, Calendar as CalendarIcon, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/lafy/page-header";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +45,7 @@ type Cohort = {
   name: string;
   ageBand: string;
   size: number;
+  expectedDate?: string;
   status: "active" | "closed";
 };
 type Program = {
@@ -118,7 +123,7 @@ function ProgramsPage() {
                     <div className="font-medium">{p.name}</div>
                     <div className="text-xs text-muted-foreground mt-0.5">{p.description}</div>
                     <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {p.startDate}</span>
+                      <span className="inline-flex items-center gap-1"><CalendarIcon className="h-3.5 w-3.5" /> {p.startDate}</span>
                       <span>·</span>
                       <span>{p.antigen}</span>
                       <span>·</span>
@@ -141,7 +146,11 @@ function ProgramsPage() {
                     <div key={c.id} className="py-2.5 flex items-center justify-between">
                       <div>
                         <div className="text-sm font-medium">{c.name}</div>
-                        <div className="text-xs text-muted-foreground">{c.ageBand} · {c.size.toLocaleString()} enrolled</div>
+                        <div className="text-xs text-muted-foreground">
+                          {c.ageBand}
+                          {c.expectedDate ? ` · expected ${c.expectedDate}` : ""}
+                          {c.size ? ` · ${c.size.toLocaleString()} enrolled` : ""}
+                        </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant={c.status === "active" ? "outline" : "secondary"} className={c.status === "active" ? "border-primary text-primary" : ""}>
@@ -241,7 +250,7 @@ function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
 function NewCohortDialog({ program, onCreate }: { program: Program; onCreate: (c: Cohort) => void }) {
   const [name, setName] = useState("");
   const [ageBand, setAgeBand] = useState("6 weeks");
-  const [size, setSize] = useState("0");
+  const [expectedDate, setExpectedDate] = useState<Date | undefined>();
 
   return (
     <DialogContent>
@@ -269,8 +278,30 @@ function NewCohortDialog({ program, onCreate }: { program: Program; onCreate: (c
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="csize">Expected enrolment</Label>
-            <Input id="csize" type="number" min="0" value={size} onChange={(e) => setSize(e.target.value)} />
+            <Label>Expected enrolment date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !expectedDate && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                  {expectedDate ? format(expectedDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={expectedDate}
+                  onSelect={setExpectedDate}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>
@@ -282,7 +313,8 @@ function NewCohortDialog({ program, onCreate }: { program: Program; onCreate: (c
               id: `c-${Date.now()}`,
               name: name.trim(),
               ageBand,
-              size: Number(size) || 0,
+              size: 0,
+              expectedDate: expectedDate ? format(expectedDate, "PPP") : undefined,
               status: "active",
             })
           }

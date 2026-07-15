@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowDownRight, ArrowUpRight, ChevronRight, Minus } from "lucide-react";
 import {
   Select,
@@ -11,6 +11,7 @@ import {
 import {
   ADHERENCE_BY_DOSE,
   ANTIGENS,
+  COVERAGE_BY_LOCATION,
   KPIS,
   NEEDS_ATTENTION,
   PROGRAMS,
@@ -44,31 +45,45 @@ function trendClasses(trend: string, label: string) {
 function DashboardPage() {
   const [program, setProgram] = useState<string>("epi");
   const active = PROGRAMS.find((p) => p.id === program)!;
+  const [coverageView, setCoverageView] = useState<"antigen" | "location">("antigen");
 
-  const overall = Math.round(ANTIGENS.reduce((s, a) => s + a.coverage, 0) / ANTIGENS.length);
-  const onTarget = ANTIGENS.filter((a) => a.coverage >= 90).length;
-  const watch = ANTIGENS.filter((a) => a.coverage >= 80 && a.coverage < 90).length;
-  const atRisk = ANTIGENS.filter((a) => a.coverage < 80).length;
-  const sortedAntigens = [...ANTIGENS].sort((a, b) => b.coverage - a.coverage);
+  const PROGRAM_FACTORS: Record<string, number> = {
+    epi: 1, polio: 0.94, measles: 0.88, malaria: 0.82, yellow: 0.9,
+  };
+  const factor = PROGRAM_FACTORS[program] ?? 1;
+  const adj = (v: number) => Math.max(0, Math.min(100, Math.round(v * factor)));
+
+  const antigens = ANTIGENS.map((a) => ({ ...a, coverage: adj(a.coverage) }));
+  const locations = COVERAGE_BY_LOCATION.map((l) => ({ ...l, completion: adj(l.completion) }));
+  const adherence = ADHERENCE_BY_DOSE.map((r) =>
+    r.notMeasurable ? r : { ...r, adherence: adj(r.adherence!) },
+  );
+  const topFacilities = TOP_FACILITIES.map((f) => ({ ...f, adherence: adj(f.adherence) }));
+  const needsAttention = NEEDS_ATTENTION.map((f) => ({ ...f, adherence: adj(f.adherence) }));
+
+  const overall = Math.round(antigens.reduce((s, a) => s + a.coverage, 0) / antigens.length);
+  const onTarget = antigens.filter((a) => a.coverage >= 90).length;
+  const watch = antigens.filter((a) => a.coverage >= 80 && a.coverage < 90).length;
+  const atRisk = antigens.filter((a) => a.coverage < 80).length;
+  const sortedAntigens = [...antigens].sort((a, b) => b.coverage - a.coverage);
+  const sortedLocations = [...locations].sort((a, b) => b.completion - a.completion);
   const openAlerts = SE_ALERTS.filter((a) => a.status !== "resolved");
+
+  const kpis = KPIS.map((k, i) =>
+    i === 0 ? { ...k, value: `${adj(82)}%` } : k,
+  );
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b pb-6">
         <div>
-          <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.18em] mb-1">
-            Implementation dashboard
-          </div>
           <h1 className="text-3xl font-black tracking-tight text-foreground">Program performance</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Live operational view for {active.name}.
           </p>
         </div>
-        <div className="flex flex-col items-start md:items-end gap-1.5">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Selected program
-          </span>
+        <div>
           <Select value={program} onValueChange={setProgram}>
             <SelectTrigger className="w-[280px] font-semibold shadow-sm">
               <SelectValue />
@@ -86,7 +101,7 @@ function DashboardPage() {
 
       {/* KPI Tier */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {KPIS.map((k) => (
+        {kpis.map((k) => (
           <div
             key={k.label}
             className="rounded-xl border bg-card p-5 shadow-sm hover:shadow-md transition-shadow"
@@ -120,15 +135,21 @@ function DashboardPage() {
               <h3 className="text-sm font-bold uppercase tracking-tight">
                 Coverage summary
               </h3>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Coverage</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-sm border border-foreground/70" />
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Target 90%</span>
-                </div>
+              <div className="inline-flex rounded-md border p-0.5 bg-background">
+                {(["antigen", "location"] as const).map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setCoverageView(v)}
+                    className={
+                      "px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-sm transition-colors " +
+                      (coverageView === v
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground")
+                    }
+                  >
+                    By {v}
+                  </button>
+                ))}
               </div>
             </div>
             <div className="p-6">
@@ -139,7 +160,9 @@ function DashboardPage() {
                   </div>
                   <div className="mt-1 flex items-baseline gap-2">
                     <span className="text-4xl font-black tabular-nums">{overall}%</span>
-                    <span className="text-xs text-muted-foreground">avg · {ANTIGENS.length} antigens</span>
+                    <span className="text-xs text-muted-foreground">
+                      avg · {coverageView === "antigen" ? `${antigens.length} antigens` : `${locations.length} locations`}
+                    </span>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -149,9 +172,8 @@ function DashboardPage() {
                 </div>
               </div>
 
-              {/* Per-antigen bars */}
+              {/* Per-antigen / per-location bars */}
               <div className="relative pt-6">
-                {/* 90% target marker */}
                 <div
                   className="absolute top-0 bottom-0 w-px bg-foreground/40"
                   style={{ left: "90%" }}
@@ -161,20 +183,19 @@ function DashboardPage() {
                   </span>
                 </div>
                 <div className="space-y-2.5">
-                  {sortedAntigens.map((a) => {
+                  {(coverageView === "antigen"
+                    ? sortedAntigens.map((a) => ({ label: a.antigen, value: a.coverage }))
+                    : sortedLocations.map((l) => ({ label: l.location, value: l.completion }))
+                  ).map((row) => {
                     const barColor =
-                      a.coverage >= 90
-                        ? "bg-primary"
-                        : a.coverage >= 80
-                          ? "bg-amber-500"
-                          : "bg-destructive";
+                      row.value >= 90 ? "bg-primary" : row.value >= 80 ? "bg-amber-500" : "bg-destructive";
                     return (
-                      <div key={a.antigen} className="grid grid-cols-[110px_1fr_46px] items-center gap-3 text-xs">
-                        <span className="font-semibold text-foreground/80 truncate">{a.antigen}</span>
+                      <div key={row.label} className="grid grid-cols-[130px_1fr_46px] items-center gap-3 text-xs">
+                        <span className="font-semibold text-foreground/80 truncate">{row.label}</span>
                         <div className="h-2.5 rounded-sm bg-muted overflow-hidden">
-                          <div className={"h-full " + barColor} style={{ width: `${a.coverage}%` }} />
+                          <div className={"h-full " + barColor} style={{ width: `${row.value}%` }} />
                         </div>
-                        <span className="text-right font-bold tabular-nums">{a.coverage}%</span>
+                        <span className="text-right font-bold tabular-nums">{row.value}%</span>
                       </div>
                     );
                   })}
@@ -192,7 +213,7 @@ function DashboardPage() {
               </span>
             </div>
             <div className="p-6 space-y-5">
-              {ADHERENCE_BY_DOSE.map((r) => {
+              {adherence.map((r) => {
                 if (r.notMeasurable) {
                   return (
                     <div key={r.dose} className="grid grid-cols-[minmax(180px,220px)_1fr_50px] gap-4 items-center opacity-60">
@@ -262,9 +283,12 @@ function DashboardPage() {
               ))}
             </div>
             <div className="p-3 border-t border-destructive/10 bg-background">
-              <button className="w-full py-1.5 text-[10px] font-bold text-destructive uppercase tracking-widest hover:bg-destructive/5 rounded transition-colors inline-flex items-center justify-center gap-1">
+              <Link
+                to="/implementor/se-alerts"
+                className="w-full py-1.5 text-[10px] font-bold text-destructive uppercase tracking-widest hover:bg-destructive/5 rounded transition-colors inline-flex items-center justify-center gap-1"
+              >
                 All alerts <ChevronRight className="h-3 w-3" />
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -279,7 +303,7 @@ function DashboardPage() {
                   Needs attention
                 </p>
                 <div className="space-y-2">
-                  {NEEDS_ATTENTION.slice(0, 3).map((r) => (
+                  {needsAttention.slice(0, 3).map((r) => (
                     <div key={r.name} className="flex items-center justify-between text-xs gap-2">
                       <div className="min-w-0">
                         <div className="font-semibold text-foreground truncate">{r.name}</div>
@@ -297,7 +321,7 @@ function DashboardPage() {
                   Top performing
                 </p>
                 <div className="space-y-2">
-                  {TOP_FACILITIES.slice(0, 3).map((r) => (
+                  {topFacilities.slice(0, 3).map((r) => (
                     <div key={r.name} className="flex items-center justify-between text-xs gap-2">
                       <div className="min-w-0">
                         <div className="font-semibold text-foreground truncate">{r.name}</div>
@@ -310,9 +334,12 @@ function DashboardPage() {
                   ))}
                 </div>
               </div>
-              <button className="w-full mt-5 py-2 border rounded-lg text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:bg-muted transition-colors">
+              <Link
+                to="/implementor/facilities"
+                className="block text-center w-full mt-5 py-2 border rounded-lg text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:bg-muted transition-colors"
+              >
                 View all facilities
-              </button>
+              </Link>
             </div>
           </div>
         </div>

@@ -2,9 +2,85 @@
 
 export const KPIS = [
   { label: "Fully immunized children", value: "82%", delta: "+4.1 pts", trend: "up", sub: "vs. last month" },
-  { label: "D-1 confirmation rate", value: "71%", delta: "+2.6 pts", trend: "up", sub: "WhatsApp + Voice" },
+  { label: "Open SE alerts", value: "12", delta: "+3 today", trend: "flat", sub: "2 critical · 6 moderate" },
   { label: "Dropout (Penta1→Penta3)", value: "6.4%", delta: "-1.2 pts", trend: "down", sub: "Target < 10%" },
   { label: "Active facilities", value: "24 / 26", delta: "2 offline", trend: "flat", sub: "Last 7 days" },
+];
+
+export const PROGRAMS = [
+  { id: "epi", name: "National immunization & Vitamin A" },
+  { id: "polio", name: "Polio eradication" },
+  { id: "measles", name: "Measles-Rubella catch-up" },
+  { id: "malaria", name: "Malaria RTS,S rollout" },
+  { id: "yellow", name: "Yellow Fever campaign" },
+];
+
+export type AdherenceRow = {
+  dose: string;
+  age: string;
+  eligible: number;
+  onTime?: number;
+  late?: number;
+  missed?: number;
+  adherence?: number;
+  tag?: "leading" | "sparse";
+  notMeasurable?: string;
+};
+
+export const ADHERENCE_BY_DOSE: AdherenceRow[] = [
+  { dose: "BCG + OPV 0", age: "At birth", eligible: 2412, onTime: 96, late: 3, missed: 1, adherence: 98, tag: "leading" },
+  { dose: "DPT-HepB-Hib 1", age: "6 weeks", eligible: 2188, onTime: 88, late: 8, missed: 4, adherence: 92 },
+  { dose: "DPT-HepB-Hib 2", age: "10 weeks", eligible: 1944, onTime: 82, late: 12, missed: 6, adherence: 88 },
+  { dose: "DPT-HepB-Hib 3", age: "14 weeks", eligible: 1601, onTime: 76, late: 16, missed: 8, adherence: 84 },
+  { dose: "Vit A · RTS,S 1", age: "6 months", eligible: 612, onTime: 70, late: 20, missed: 10, adherence: 80 },
+  { dose: "Measles-Rubella 1", age: "9 months", eligible: 188, onTime: 62, late: 24, missed: 14, adherence: 76, tag: "sparse" },
+  { dose: "Vit A booster", age: "12 months", eligible: 0, notMeasurable: "first reading Apr 2027" },
+  { dose: "Measles-Rubella 2", age: "18 months", eligible: 0, notMeasurable: "first reading Oct 2027" },
+];
+
+export const TOP_FACILITIES = [
+  { name: "Korle Bu Teaching Hospital", region: "Greater Accra", babies: 487, adherence: 81 },
+  { name: "Adabraka Polyclinic", region: "Greater Accra", babies: 198, adherence: 79 },
+  { name: "Tema General Hospital", region: "Greater Accra", babies: 341, adherence: 78 },
+  { name: "Ridge Hospital", region: "Greater Accra", babies: 312, adherence: 76 },
+  { name: "Nsawam Government Hospital", region: "Eastern", babies: 271, adherence: 74 },
+];
+
+export const NEEDS_ATTENTION = [
+  { name: "Aburi CHPS", region: "Eastern", babies: 67, adherence: 54 },
+  { name: "Dodowa CHPS", region: "Greater Accra", babies: 88, adherence: 58 },
+  { name: "Madina CHPS", region: "Greater Accra", babies: 142, adherence: 64 },
+  { name: "Akropong Health Centre", region: "Eastern", babies: 119, adherence: 68 },
+  { name: "Kasoa Polyclinic", region: "Central", babies: 224, adherence: 70 },
+];
+
+export type SEAlert = {
+  id: string;
+  name: string;
+  facility: string;
+  detail: string;
+  dose: string;
+  batch: string;
+  severity: "critical" | "moderate" | "mild";
+  reportedAt: string;
+  status: "open" | "escalated" | "resolved";
+};
+
+export const SE_ALERTS: SEAlert[] = [
+  { id: "SE-2601", name: "Nana Aba Sey", facility: "Ridge Hospital", detail: "Localised swelling, child refusing to feed", dose: "Yellow Fever", batch: "YF-2601", severity: "critical", reportedAt: "2h ago", status: "escalated" },
+  { id: "SE-2604", name: "Yaw Boateng", facility: "Korle Bu", detail: "Fever 39.1°C, persistent crying", dose: "DPT-HepB-Hib 3", batch: "DH-K2604", severity: "moderate", reportedAt: "5h ago", status: "open" },
+  { id: "SE-2603", name: "Kweku Otoo", facility: "Madina CHPS", detail: "Rash on left arm, mild fever", dose: "Measles-Rubella 1", batch: "MR-2603", severity: "moderate", reportedAt: "9h ago", status: "open" },
+  { id: "SE-2519", name: "Ama Serwaa", facility: "Nsawam Gov. Hospital", detail: "Low-grade fever, tolerating feeds", dose: "PCV 2", batch: "PC-2519", severity: "mild", reportedAt: "1d ago", status: "open" },
+  { id: "SE-2517", name: "Kofi Mensah", facility: "Tema General", detail: "Injection-site tenderness, resolved <24h", dose: "DPT-HepB-Hib 2", batch: "DH-K2517", severity: "mild", reportedAt: "2d ago", status: "resolved" },
+];
+
+export const COVERAGE_BY_LOCATION = [
+  { location: "Greater Accra", completion: 84, facilities: 12 },
+  { location: "Ashanti", completion: 80, facilities: 9 },
+  { location: "Central", completion: 76, facilities: 5 },
+  { location: "Eastern", completion: 71, facilities: 6 },
+  { location: "Western", completion: 68, facilities: 4 },
+  { location: "Volta", completion: 66, facilities: 3 },
 ];
 
 export const EPI_VISITS = [

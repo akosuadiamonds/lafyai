@@ -1,29 +1,31 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Line,
-  LineChart,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Minus, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PageHeader } from "@/components/lafy/page-header";
-import { CHANNELS, EPI_VISITS, KPIS, SITES, WEEKLY_ATTENDANCE } from "@/lib/lafy-data";
+import {
+  ADHERENCE_BY_DOSE,
+  KPIS,
+  NEEDS_ATTENTION,
+  PROGRAMS,
+  SE_ALERTS,
+  TOP_FACILITIES,
+} from "@/lib/lafy-data";
 
 export const Route = createFileRoute("/implementor/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — lafyai" },
-      { name: "description", content: "Program KPIs, EPI schedule rail, and channel performance for lafyai implementors." },
+      { name: "description", content: "Program overview: KPIs, on-time adherence, top facilities, SE alerts." },
     ],
   }),
   component: DashboardPage,
@@ -35,17 +37,39 @@ function TrendIcon({ trend }: { trend: string }) {
   return <Minus className="h-3.5 w-3.5" />;
 }
 
+function severityDot(sev: string) {
+  if (sev === "critical") return "bg-destructive";
+  if (sev === "moderate") return "bg-amber-500";
+  return "bg-emerald-500";
+}
+function severityChip(sev: string) {
+  if (sev === "critical") return "bg-destructive/10 text-destructive border-destructive/20";
+  if (sev === "moderate") return "bg-amber-100 text-amber-800 border-amber-200";
+  return "bg-emerald-100 text-emerald-800 border-emerald-200";
+}
+
 function DashboardPage() {
+  const [program, setProgram] = useState<string>("epi");
+  const active = PROGRAMS.find((p) => p.id === program)!;
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Program overview"
-        description="Real-time snapshot of coverage, engagement, and facility performance across all supported sites."
+        description={`Showing metrics for ${active.name}.`}
         actions={
-          <>
-            <Button variant="outline" size="sm">Last 30 days</Button>
-            <Button size="sm">Export snapshot</Button>
-          </>
+          <Select value={program} onValueChange={setProgram}>
+            <SelectTrigger className="w-[280px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PROGRAMS.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         }
       />
 
@@ -75,114 +99,181 @@ function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base">Schedule rail — coverage per EPI visit</CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">Current coverage vs. pre-lafyai baseline for each scheduled visit.</p>
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle className="text-base">On-time adherence by dose</CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                % of babies who received each dose within ±2 weeks of their scheduled date
+              </p>
+            </div>
+            <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary mr-1.5 inline-block" /> Leading indicator
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-[minmax(180px,220px)_1fr_90px] gap-4 text-[11px] uppercase tracking-wide text-muted-foreground pb-2 border-b">
+            <div>Dose · Scheduled age</div>
+            <div>On-time / Late / Missed</div>
+            <div className="text-right">Adherence</div>
+          </div>
+          <div className="divide-y">
+            {ADHERENCE_BY_DOSE.map((r) => (
+              <div key={r.dose} className="grid grid-cols-[minmax(180px,220px)_1fr_90px] gap-4 items-center py-3.5">
+                <div>
+                  <div className={"text-sm font-medium " + (r.notMeasurable ? "text-muted-foreground" : "")}>
+                    {r.dose}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {r.age}
+                    {r.eligible > 0 ? ` · ${r.eligible.toLocaleString()} eligible` : ` · no babies aged in yet`}
+                  </div>
+                </div>
+                <div>
+                  {r.notMeasurable ? (
+                    <div className="h-3 rounded border border-dashed border-border grid place-items-center text-[11px] text-muted-foreground">
+                      Not measurable yet · {r.notMeasurable}
+                    </div>
+                  ) : (
+                    <div className="flex h-3 w-full rounded overflow-hidden bg-muted">
+                      <div className="bg-emerald-500" style={{ width: `${r.onTime}%` }} />
+                      <div className="bg-amber-500" style={{ width: `${r.late}%` }} />
+                      <div className="bg-red-400" style={{ width: `${r.missed}%` }} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <span
+                    className={
+                      "text-sm font-semibold tabular-nums " +
+                      (r.notMeasurable
+                        ? "text-muted-foreground"
+                        : r.adherence! >= 90
+                          ? "text-emerald-600"
+                          : "text-foreground")
+                    }
+                  >
+                    {r.notMeasurable ? "—" : `${r.adherence}%`}
+                  </span>
+                  {r.tag === "sparse" && (
+                    <span className="text-[10px] rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-1.5 py-0.5">
+                      Sparse
+                    </span>
+                  )}
+                </div>
               </div>
-              <Badge variant="secondary">Target 90%</Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={EPI_VISITS} barGap={4}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                <XAxis dataKey="visit" tickLine={false} axisLine={false} fontSize={12} />
-                <YAxis tickLine={false} axisLine={false} fontSize={12} domain={[0, 100]} unit="%" />
-                <Tooltip cursor={{ fill: "var(--color-muted)" }} />
-                <ReferenceLine y={90} stroke="var(--color-chart-5)" strokeDasharray="4 4" label={{ value: "Target 90%", position: "right", fontSize: 11, fill: "var(--color-chart-5)" }} />
-                <Bar dataKey="baseline" fill="var(--color-muted)" radius={[4, 4, 0, 0]} name="Baseline" />
-                <Bar dataKey="coverage" fill="var(--color-primary)" radius={[4, 4, 0, 0]} name="Current" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+          <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> On time (±2w)</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Late</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-400" /> Missed</span>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Weekly attendance vs. confirmation</CardTitle>
-            <p className="text-xs text-muted-foreground">Rolling 8 weeks.</p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={WEEKLY_ATTENDANCE}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                <XAxis dataKey="week" tickLine={false} axisLine={false} fontSize={12} />
-                <YAxis tickLine={false} axisLine={false} fontSize={12} />
-                <Tooltip />
-                <Line type="monotone" dataKey="confirmed" stroke="var(--color-chart-3)" strokeWidth={2} dot={false} name="Confirmed" />
-                <Line type="monotone" dataKey="attended" stroke="var(--color-primary)" strokeWidth={2} dot={false} name="Attended" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <FacilityRankList
+          title="Top performing facilities"
+          subtitle="By on-time adherence"
+          rows={TOP_FACILITIES}
+          tone="good"
+        />
+        <FacilityRankList
+          title="Needs attention"
+          subtitle="Lowest on-time adherence · bottom 5"
+          rows={NEEDS_ATTENTION}
+          tone="bad"
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-1">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Channel performance</CardTitle>
-            <p className="text-xs text-muted-foreground">Reach → engaged → confirmed.</p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {CHANNELS.map((c) => {
-              const engagedPct = Math.round((c.engaged / c.reach) * 100);
-              const confirmedPct = Math.round((c.confirmed / c.reach) * 100);
-              return (
-                <div key={c.channel}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{c.channel}</span>
-                    <span className="text-muted-foreground text-xs">{c.reach.toLocaleString()} reached · {c.cost}/msg</span>
-                  </div>
-                  <div className="mt-2 h-2 w-full rounded-full bg-muted overflow-hidden relative">
-                    <div className="absolute inset-y-0 left-0 bg-primary/30" style={{ width: `${engagedPct}%` }} />
-                    <div className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${confirmedPct}%` }} />
-                  </div>
-                  <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-                    <span>{engagedPct}% engaged</span>
-                    <span>{confirmedPct}% confirmed</span>
-                  </div>
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Per-site snapshot</CardTitle>
-              <Button variant="ghost" size="sm">View all facilities →</Button>
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base">SE alerts · cross-facility</CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">Open and escalated</p>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {SITES.slice(0, 4).map((s) => (
-                <div key={s.name} className="rounded-lg border p-4 hover:border-primary/40 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="font-medium">{s.name}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">D-1 confirm {s.d1}% · SE resp {s.seResp}</div>
-                    </div>
-                    <div className={"text-lg font-semibold " + (s.coverage >= 85 ? "text-primary" : s.coverage >= 75 ? "text-foreground" : "text-destructive")}>
-                      {s.coverage}%
-                    </div>
-                  </div>
-                  <div className="mt-3 h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${s.coverage}%` }} />
-                  </div>
+            <Button variant="ghost" size="sm" className="text-primary">
+              All alerts <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="divide-y">
+          {SE_ALERTS.filter((a) => a.status !== "resolved").slice(0, 4).map((a) => (
+            <div key={a.id} className="py-3.5 flex items-start justify-between gap-4 first:pt-0 last:pb-0">
+              <div className="min-w-0">
+                <div className="text-sm">
+                  <span className="font-medium">{a.name}</span>
+                  <span className="text-muted-foreground"> · {a.facility}</span>
                 </div>
-              ))}
+                <div className="text-xs text-muted-foreground mt-0.5">{a.detail}</div>
+                <div className="text-[11px] text-muted-foreground mt-1 font-mono">
+                  {a.dose} · batch {a.batch}
+                </div>
+              </div>
+              <span className={"inline-flex items-center gap-1.5 shrink-0 rounded-full border text-[11px] font-medium px-2 py-0.5 " + severityChip(a.severity)}>
+                <span className={"h-1.5 w-1.5 rounded-full " + severityDot(a.severity)} />
+                {a.severity}
+              </span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-// Prevent unused import warning for Cell (kept for future donut variant)
-void Cell;
+function FacilityRankList({
+  title,
+  subtitle,
+  rows,
+  tone,
+}: {
+  title: string;
+  subtitle: string;
+  rows: { name: string; region: string; babies: number; adherence: number }[];
+  tone: "good" | "bad";
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">{title}</CardTitle>
+        <p className="text-xs text-muted-foreground">{subtitle}</p>
+      </CardHeader>
+      <CardContent className="divide-y">
+        {rows.map((r, i) => {
+          const barColor =
+            tone === "bad" && r.adherence < 65
+              ? "bg-red-400"
+              : r.adherence >= 80
+                ? "bg-emerald-500"
+                : "bg-amber-500";
+          const numColor =
+            tone === "bad"
+              ? "text-destructive"
+              : r.adherence >= 80
+                ? "text-emerald-600"
+                : "text-foreground";
+          return (
+            <div key={r.name} className="py-3 flex items-center gap-3 first:pt-0 last:pb-0">
+              <span className="text-xs text-muted-foreground w-6">#{i + 1}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{r.name}</div>
+                <div className="text-xs text-muted-foreground">{r.region} · {r.babies} babies</div>
+              </div>
+              <div className="w-24 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div className={"h-full " + barColor} style={{ width: `${r.adherence}%` }} />
+              </div>
+              <div className={"text-sm font-semibold tabular-nums w-10 text-right " + numColor}>
+                {r.adherence}%
+              </div>
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
+}

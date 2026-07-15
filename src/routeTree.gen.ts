@@ -13,11 +13,9 @@ import { Route as ImplementorRouteImport } from './routes/implementor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
 import { Route as ImplementorReportsRouteImport } from './routes/implementor.reports'
-import { Route as ImplementorIndicatorsRouteImport } from './routes/implementor.indicators'
 import { Route as ImplementorFacilitiesRouteImport } from './routes/implementor.facilities'
 import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
 import { Route as ImplementorCoverageRouteImport } from './routes/implementor.coverage'
-import { Route as ImplementorCohortRouteImport } from './routes/implementor.cohort'
 
 const ImplementorRoute = ImplementorRouteImport.update({
   id: '/implementor',
@@ -39,11 +37,6 @@ const ImplementorReportsRoute = ImplementorReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => ImplementorRoute,
 } as any)
-const ImplementorIndicatorsRoute = ImplementorIndicatorsRouteImport.update({
-  id: '/indicators',
-  path: '/indicators',
-  getParentRoute: () => ImplementorRoute,
-} as any)
 const ImplementorFacilitiesRoute = ImplementorFacilitiesRouteImport.update({
   id: '/facilities',
   path: '/facilities',
@@ -59,30 +52,21 @@ const ImplementorCoverageRoute = ImplementorCoverageRouteImport.update({
   path: '/coverage',
   getParentRoute: () => ImplementorRoute,
 } as any)
-const ImplementorCohortRoute = ImplementorCohortRouteImport.update({
-  id: '/cohort',
-  path: '/cohort',
-  getParentRoute: () => ImplementorRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/implementor': typeof ImplementorRouteWithChildren
-  '/implementor/cohort': typeof ImplementorCohortRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
-  '/implementor/indicators': typeof ImplementorIndicatorsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/implementor/cohort': typeof ImplementorCohortRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
-  '/implementor/indicators': typeof ImplementorIndicatorsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor': typeof ImplementorIndexRoute
 }
@@ -90,11 +74,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/implementor': typeof ImplementorRouteWithChildren
-  '/implementor/cohort': typeof ImplementorCohortRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/facilities': typeof ImplementorFacilitiesRoute
-  '/implementor/indicators': typeof ImplementorIndicatorsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
@@ -103,32 +85,26 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/implementor'
-    | '/implementor/cohort'
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
-    | '/implementor/indicators'
     | '/implementor/reports'
     | '/implementor/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/implementor/cohort'
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
-    | '/implementor/indicators'
     | '/implementor/reports'
     | '/implementor'
   id:
     | '__root__'
     | '/'
     | '/implementor'
-    | '/implementor/cohort'
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/facilities'
-    | '/implementor/indicators'
     | '/implementor/reports'
     | '/implementor/'
   fileRoutesById: FileRoutesById
@@ -168,13 +144,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorReportsRouteImport
       parentRoute: typeof ImplementorRoute
     }
-    '/implementor/indicators': {
-      id: '/implementor/indicators'
-      path: '/indicators'
-      fullPath: '/implementor/indicators'
-      preLoaderRoute: typeof ImplementorIndicatorsRouteImport
-      parentRoute: typeof ImplementorRoute
-    }
     '/implementor/facilities': {
       id: '/implementor/facilities'
       path: '/facilities'
@@ -196,32 +165,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorCoverageRouteImport
       parentRoute: typeof ImplementorRoute
     }
-    '/implementor/cohort': {
-      id: '/implementor/cohort'
-      path: '/cohort'
-      fullPath: '/implementor/cohort'
-      preLoaderRoute: typeof ImplementorCohortRouteImport
-      parentRoute: typeof ImplementorRoute
-    }
   }
 }
 
 interface ImplementorRouteChildren {
-  ImplementorCohortRoute: typeof ImplementorCohortRoute
   ImplementorCoverageRoute: typeof ImplementorCoverageRoute
   ImplementorDashboardRoute: typeof ImplementorDashboardRoute
   ImplementorFacilitiesRoute: typeof ImplementorFacilitiesRoute
-  ImplementorIndicatorsRoute: typeof ImplementorIndicatorsRoute
   ImplementorReportsRoute: typeof ImplementorReportsRoute
   ImplementorIndexRoute: typeof ImplementorIndexRoute
 }
 
 const ImplementorRouteChildren: ImplementorRouteChildren = {
-  ImplementorCohortRoute: ImplementorCohortRoute,
   ImplementorCoverageRoute: ImplementorCoverageRoute,
   ImplementorDashboardRoute: ImplementorDashboardRoute,
   ImplementorFacilitiesRoute: ImplementorFacilitiesRoute,
-  ImplementorIndicatorsRoute: ImplementorIndicatorsRoute,
   ImplementorReportsRoute: ImplementorReportsRoute,
   ImplementorIndexRoute: ImplementorIndexRoute,
 }

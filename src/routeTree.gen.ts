@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ImplementorRouteImport } from './routes/implementor'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
 
 const ImplementorRoute = ImplementorRouteImport.update({
   id: '/implementor',
@@ -22,31 +23,38 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImplementorIndexRoute = ImplementorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ImplementorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/implementor': typeof ImplementorRoute
+  '/implementor': typeof ImplementorRouteWithChildren
+  '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/implementor': typeof ImplementorRoute
+  '/implementor': typeof ImplementorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/implementor': typeof ImplementorRoute
+  '/implementor': typeof ImplementorRouteWithChildren
+  '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/implementor'
+  fullPaths: '/' | '/implementor' | '/implementor/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/implementor'
-  id: '__root__' | '/' | '/implementor'
+  id: '__root__' | '/' | '/implementor' | '/implementor/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ImplementorRoute: typeof ImplementorRoute
+  ImplementorRoute: typeof ImplementorRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +73,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/implementor/': {
+      id: '/implementor/'
+      path: '/'
+      fullPath: '/implementor/'
+      preLoaderRoute: typeof ImplementorIndexRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
   }
 }
 
+interface ImplementorRouteChildren {
+  ImplementorIndexRoute: typeof ImplementorIndexRoute
+}
+
+const ImplementorRouteChildren: ImplementorRouteChildren = {
+  ImplementorIndexRoute: ImplementorIndexRoute,
+}
+
+const ImplementorRouteWithChildren = ImplementorRoute._addFileChildren(
+  ImplementorRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ImplementorRoute: ImplementorRoute,
+  ImplementorRoute: ImplementorRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

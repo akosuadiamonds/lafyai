@@ -250,7 +250,7 @@ function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
 function NewCohortDialog({ program, onCreate }: { program: Program; onCreate: (c: Cohort) => void }) {
   const [name, setName] = useState("");
   const [ageBand, setAgeBand] = useState("6 weeks");
-  const [size, setSize] = useState("0");
+  const [expectedDate, setExpectedDate] = useState<Date | undefined>();
 
   return (
     <DialogContent>
@@ -278,8 +278,30 @@ function NewCohortDialog({ program, onCreate }: { program: Program; onCreate: (c
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="csize">Expected enrolment</Label>
-            <Input id="csize" type="number" min="0" value={size} onChange={(e) => setSize(e.target.value)} />
+            <Label>Expected enrolment date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !expectedDate && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                  {expectedDate ? format(expectedDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={expectedDate}
+                  onSelect={setExpectedDate}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>
@@ -291,7 +313,8 @@ function NewCohortDialog({ program, onCreate }: { program: Program; onCreate: (c
               id: `c-${Date.now()}`,
               name: name.trim(),
               ageBand,
-              size: Number(size) || 0,
+              size: 0,
+              expectedDate: expectedDate ? format(expectedDate, "PPP") : undefined,
               status: "active",
             })
           }

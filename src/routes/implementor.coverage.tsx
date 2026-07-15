@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Minus, MapPin, Building2, TrendingUp, AlertTriangle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/lafy/page-header";
@@ -12,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ANTIGENS, COVERAGE_BY_LOCATION } from "@/lib/lafy-data";
+import { ANTIGENS, COVERAGE_BY_LOCATION, FACILITIES_BY_LOCATION } from "@/lib/lafy-data";
 
 export const Route = createFileRoute("/implementor/coverage")({
   head: () => ({
@@ -197,6 +198,7 @@ function LocationInsightsDialog({
               <MiniStat label="Facilities" value={String(location.facilities)} icon={<Building2 className="h-4 w-4 text-primary" />} />
               <MiniStat label="Gap to target" value={`${Math.max(0, 90 - location.completion)} pts`} icon={<AlertTriangle className="h-4 w-4 text-amber-500" />} />
             </div>
+            <FacilitiesInLocation locationName={location.location} />
             <div className="border rounded-lg p-4">
               <h4 className="text-sm font-medium mb-3">Antigen coverage in {location.location}</h4>
               <div className="space-y-2">
@@ -230,6 +232,53 @@ function MiniStat({ label, value, icon }: { label: string; value: string; icon: 
         {icon}
       </div>
       <div className="mt-1 text-xl font-semibold tabular-nums">{value}</div>
+    </div>
+  );
+}
+
+function FacilitiesInLocation({ locationName }: { locationName: string }) {
+  const facilities = FACILITIES_BY_LOCATION[locationName] ?? [];
+  return (
+    <div className="border rounded-lg p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-primary" /> Facilities in {locationName}
+        </h4>
+        <span className="text-[11px] text-muted-foreground">{facilities.length} listed</span>
+      </div>
+      {facilities.length === 0 ? (
+        <div className="text-xs text-muted-foreground py-4 text-center">No facility roster available.</div>
+      ) : (
+        <ul className="divide-y">
+          {facilities.map((f) => {
+            const bar = f.coverage >= 90 ? "bg-primary" : f.coverage >= 80 ? "bg-amber-500" : "bg-destructive";
+            return (
+              <li key={f.name} className="py-2.5 first:pt-0 last:pb-0">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link
+                      to="/implementor/facilities/$slug"
+                      params={{ slug: encodeURIComponent(f.name) }}
+                      className="text-sm font-medium hover:text-primary truncate block"
+                    >
+                      {f.name}
+                    </Link>
+                    <div className="text-[11px] text-muted-foreground">
+                      {f.district} · {f.type} · {f.babies} enrolled
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 w-40">
+                    <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                      <div className={"h-full " + bar} style={{ width: `${f.coverage}%` }} />
+                    </div>
+                    <span className="text-xs tabular-nums font-semibold w-9 text-right">{f.coverage}%</span>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

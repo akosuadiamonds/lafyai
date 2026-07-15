@@ -14,6 +14,7 @@ import {
 import { PageHeader } from "@/components/lafy/page-header";
 import {
   ADHERENCE_BY_DOSE,
+  ANTIGENS,
   KPIS,
   NEEDS_ATTENTION,
   PROGRAMS,
@@ -98,6 +99,8 @@ function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      <CoverageSummary />
 
       <Card>
         <CardHeader className="pb-2">
@@ -275,5 +278,85 @@ function FacilityRankList({
         })}
       </CardContent>
     </Card>
+  );
+}
+
+function CoverageSummary() {
+  const overall = Math.round(ANTIGENS.reduce((s, a) => s + a.coverage, 0) / ANTIGENS.length);
+  const onTarget = ANTIGENS.filter((a) => a.coverage >= 90).length;
+  const watch = ANTIGENS.filter((a) => a.coverage >= 80 && a.coverage < 90).length;
+  const atRisk = ANTIGENS.filter((a) => a.coverage < 80).length;
+  const sorted = [...ANTIGENS].sort((a, b) => b.coverage - a.coverage);
+  const best = sorted[0];
+  const worst = sorted[sorted.length - 1];
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle className="text-base">Coverage summary</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Fully immunized rate against the 90% national target, across all antigens.</p>
+          </div>
+          <Badge variant="outline" className="border-primary text-primary">Target 90%</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-center">
+          <div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Overall coverage</div>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-4xl font-semibold tabular-nums">{overall}%</span>
+              <span className="text-xs text-muted-foreground">avg across {ANTIGENS.length} antigens</span>
+            </div>
+            <div className="relative mt-3 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className={
+                  "h-full " +
+                  (overall >= 90 ? "bg-primary" : overall >= 80 ? "bg-amber-500" : "bg-destructive")
+                }
+                style={{ width: `${overall}%` }}
+              />
+              <div className="absolute top-1/2 -translate-y-1/2 h-3 w-0.5 bg-foreground/70" style={{ left: "90%" }} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <SummaryStat label="On target" value={onTarget} tone="good" hint="≥ 90%" />
+            <SummaryStat label="Watch" value={watch} tone="warn" hint="80–89%" />
+            <SummaryStat label="At risk" value={atRisk} tone="bad" hint="< 80%" />
+          </div>
+        </div>
+
+        <div className="mt-5 pt-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">Best performing antigen</div>
+              <div className="font-medium">{best.antigen}</div>
+            </div>
+            <span className="text-emerald-600 font-semibold tabular-nums">{best.coverage}%</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">Lowest coverage</div>
+              <div className="font-medium">{worst.antigen}</div>
+            </div>
+            <span className="text-destructive font-semibold tabular-nums">{worst.coverage}%</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SummaryStat({ label, value, tone, hint }: { label: string; value: number; tone: "good" | "warn" | "bad"; hint: string }) {
+  const border = tone === "good" ? "border-l-primary" : tone === "warn" ? "border-l-amber-500" : "border-l-destructive";
+  const num = tone === "good" ? "text-primary" : tone === "warn" ? "text-amber-600" : "text-destructive";
+  return (
+    <div className={"rounded-lg border border-l-4 p-3 " + border}>
+      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={"mt-0.5 text-2xl font-semibold tabular-nums " + num}>{value}</div>
+      <div className="text-[11px] text-muted-foreground">{hint}</div>
+    </div>
   );
 }

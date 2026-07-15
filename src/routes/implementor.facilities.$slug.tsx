@@ -58,11 +58,7 @@ function FacilityProfilePage() {
 
       <PageHeader
         title={s.name}
-        description={
-          <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" /> Nairobi · Public facility
-          </span>
-        }
+        description="Nairobi · Public facility"
         actions={<Badge className="bg-primary/10 text-primary hover:bg-primary/10">Active</Badge>}
       />
 

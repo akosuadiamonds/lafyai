@@ -14,6 +14,7 @@ import {
 import { PageHeader } from "@/components/lafy/page-header";
 import {
   ADHERENCE_BY_DOSE,
+  ANTIGENS,
   KPIS,
   NEEDS_ATTENTION,
   PROGRAMS,

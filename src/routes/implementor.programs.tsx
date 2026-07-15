@@ -146,7 +146,11 @@ function ProgramsPage() {
                     <div key={c.id} className="py-2.5 flex items-center justify-between">
                       <div>
                         <div className="text-sm font-medium">{c.name}</div>
-                        <div className="text-xs text-muted-foreground">{c.ageBand} · {c.size.toLocaleString()} enrolled</div>
+                        <div className="text-xs text-muted-foreground">
+                          {c.ageBand}
+                          {c.expectedDate ? ` · expected ${c.expectedDate}` : ""}
+                          {c.size ? ` · ${c.size.toLocaleString()} enrolled` : ""}
+                        </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant={c.status === "active" ? "outline" : "secondary"} className={c.status === "active" ? "border-primary text-primary" : ""}>

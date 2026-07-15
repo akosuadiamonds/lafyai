@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/implementor/facilities")({
+export const Route = createFileRoute("/implementor/facilities/")({
   head: () => ({
     meta: [
       { title: "Facilities — lafyai" },

@@ -81,10 +81,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Monitoring & evaluation dashboard for lafyai immunization program implementors." },
       { name: "author", content: "lafyai" },
       { property: "og:title", content: "lafyai — Implementor Dashboard" },
-      { property: "og:description", content: "Coverage, facilities, cohorts, and M&E indicators at a glance." },
+      { property: "og:description", content: "Monitoring & evaluation dashboard for lafyai immunization program implementors." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@lafyai" },
+      { name: "twitter:title", content: "lafyai — Implementor Dashboard" },
+      { name: "twitter:description", content: "Monitoring & evaluation dashboard for lafyai immunization program implementors." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/70306385-d97c-45fc-ad36-58d0b82ca2d3/id-preview-5b75e80f--383449bc-eaa3-4d21-927c-5a699d06f5fb.lovable.app-1784122448166.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/70306385-d97c-45fc-ad36-58d0b82ca2d3/id-preview-5b75e80f--383449bc-eaa3-4d21-927c-5a699d06f5fb.lovable.app-1784122448166.png" },
     ],
     links: [
       {

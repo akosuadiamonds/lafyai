@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownRight, ArrowUpRight, Minus, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ArrowDownRight, ArrowUpRight, ChevronRight, Minus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageHeader } from "@/components/lafy/page-header";
 import {
   ADHERENCE_BY_DOSE,
   ANTIGENS,
@@ -33,34 +29,48 @@ export const Route = createFileRoute("/implementor/dashboard")({
 });
 
 function TrendIcon({ trend }: { trend: string }) {
-  if (trend === "up") return <ArrowUpRight className="h-3.5 w-3.5" />;
-  if (trend === "down") return <ArrowDownRight className="h-3.5 w-3.5" />;
-  return <Minus className="h-3.5 w-3.5" />;
+  if (trend === "up") return <ArrowUpRight className="h-3 w-3" />;
+  if (trend === "down") return <ArrowDownRight className="h-3 w-3" />;
+  return <Minus className="h-3 w-3" />;
 }
 
-function severityDot(sev: string) {
-  if (sev === "critical") return "bg-destructive";
-  if (sev === "moderate") return "bg-amber-500";
-  return "bg-emerald-500";
-}
-function severityChip(sev: string) {
-  if (sev === "critical") return "bg-destructive/10 text-destructive border-destructive/20";
-  if (sev === "moderate") return "bg-amber-100 text-amber-800 border-amber-200";
-  return "bg-emerald-100 text-emerald-800 border-emerald-200";
+function trendClasses(trend: string, label: string) {
+  const isAlertsKpi = /alert/i.test(label);
+  if (trend === "up") return isAlertsKpi ? "text-destructive" : "text-primary";
+  if (trend === "down") return isAlertsKpi ? "text-primary" : "text-destructive";
+  return "text-muted-foreground";
 }
 
 function DashboardPage() {
   const [program, setProgram] = useState<string>("epi");
   const active = PROGRAMS.find((p) => p.id === program)!;
 
+  const overall = Math.round(ANTIGENS.reduce((s, a) => s + a.coverage, 0) / ANTIGENS.length);
+  const onTarget = ANTIGENS.filter((a) => a.coverage >= 90).length;
+  const watch = ANTIGENS.filter((a) => a.coverage >= 80 && a.coverage < 90).length;
+  const atRisk = ANTIGENS.filter((a) => a.coverage < 80).length;
+  const sortedAntigens = [...ANTIGENS].sort((a, b) => b.coverage - a.coverage);
+  const openAlerts = SE_ALERTS.filter((a) => a.status !== "resolved");
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Program overview"
-        description={`Showing metrics for ${active.name}.`}
-        actions={
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b pb-6">
+        <div>
+          <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.18em] mb-1">
+            Implementation dashboard
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-foreground">Program performance</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Live operational view for {active.name}.
+          </p>
+        </div>
+        <div className="flex flex-col items-start md:items-end gap-1.5">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Selected program
+          </span>
           <Select value={program} onValueChange={setProgram}>
-            <SelectTrigger className="w-[280px]">
+            <SelectTrigger className="w-[280px] font-semibold shadow-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -71,292 +81,264 @@ function DashboardPage() {
               ))}
             </SelectContent>
           </Select>
-        }
-      />
+        </div>
+      </div>
 
+      {/* KPI Tier */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {KPIS.map((k) => (
-          <Card key={k.label}>
-            <CardContent className="p-5">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">{k.label}</div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <div className="text-3xl font-semibold tracking-tight">{k.value}</div>
-                <span
-                  className={
-                    "inline-flex items-center gap-0.5 text-xs font-medium rounded-full px-1.5 py-0.5 " +
-                    (k.trend === "up"
-                      ? "bg-primary/10 text-primary"
-                      : k.trend === "down"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-muted text-muted-foreground")
-                  }
-                >
-                  <TrendIcon trend={k.trend} /> {k.delta}
-                </span>
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">{k.sub}</div>
-            </CardContent>
-          </Card>
+          <div
+            key={k.label}
+            className="rounded-xl border bg-card p-5 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              {k.label}
+            </p>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="text-2xl font-bold tracking-tight tabular-nums">{k.value}</span>
+              <span
+                className={
+                  "inline-flex items-center gap-0.5 text-xs font-bold " +
+                  trendClasses(k.trend, k.label)
+                }
+              >
+                <TrendIcon trend={k.trend} /> {k.delta}
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground">{k.sub}</p>
+          </div>
         ))}
       </div>
 
-      <CoverageSummary />
-
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="text-base">On-time adherence by dose</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                % of babies who received each dose within ±2 weeks of their scheduled date
-              </p>
+      {/* Main operational grid */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left: Analytics Core */}
+        <div className="col-span-12 lg:col-span-8 space-y-6">
+          {/* Coverage summary — hero panel */}
+          <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-tight">
+                Coverage summary
+              </h3>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-primary" />
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Coverage</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-sm border border-foreground/70" />
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Target 90%</span>
+                </div>
+              </div>
             </div>
-            <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary mr-1.5 inline-block" /> Leading indicator
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-[minmax(180px,220px)_1fr_90px] gap-4 text-[11px] uppercase tracking-wide text-muted-foreground pb-2 border-b">
-            <div>Dose · Scheduled age</div>
-            <div>On-time / Late / Missed</div>
-            <div className="text-right">Adherence</div>
-          </div>
-          <div className="divide-y">
-            {ADHERENCE_BY_DOSE.map((r) => (
-              <div key={r.dose} className="grid grid-cols-[minmax(180px,220px)_1fr_90px] gap-4 items-center py-3.5">
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-center mb-6">
                 <div>
-                  <div className={"text-sm font-medium " + (r.notMeasurable ? "text-muted-foreground" : "")}>
-                    {r.dose}
+                  <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    Overall coverage
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {r.age}
-                    {r.eligible > 0 ? ` · ${r.eligible.toLocaleString()} eligible` : ` · no babies aged in yet`}
+                  <div className="mt-1 flex items-baseline gap-2">
+                    <span className="text-4xl font-black tabular-nums">{overall}%</span>
+                    <span className="text-xs text-muted-foreground">avg · {ANTIGENS.length} antigens</span>
                   </div>
                 </div>
-                <div>
-                  {r.notMeasurable ? (
-                    <div className="h-3 rounded border border-dashed border-border grid place-items-center text-[11px] text-muted-foreground">
-                      Not measurable yet · {r.notMeasurable}
-                    </div>
-                  ) : (
-                    <div className="flex h-3 w-full rounded overflow-hidden bg-muted">
-                      <div className="bg-emerald-500" style={{ width: `${r.onTime}%` }} />
-                      <div className="bg-amber-500" style={{ width: `${r.late}%` }} />
-                      <div className="bg-red-400" style={{ width: `${r.missed}%` }} />
-                    </div>
-                  )}
+                <div className="grid grid-cols-3 gap-3">
+                  <BucketStat label="On target" value={onTarget} hint="≥ 90%" tone="good" />
+                  <BucketStat label="Watch" value={watch} hint="80–89%" tone="warn" />
+                  <BucketStat label="At risk" value={atRisk} hint="< 80%" tone="bad" />
                 </div>
-                <div className="flex items-center justify-end gap-2">
-                  <span
-                    className={
-                      "text-sm font-semibold tabular-nums " +
-                      (r.notMeasurable
-                        ? "text-muted-foreground"
-                        : r.adherence! >= 90
-                          ? "text-emerald-600"
-                          : "text-foreground")
-                    }
-                  >
-                    {r.notMeasurable ? "—" : `${r.adherence}%`}
+              </div>
+
+              {/* Per-antigen bars */}
+              <div className="relative pt-6">
+                {/* 90% target marker */}
+                <div
+                  className="absolute top-0 bottom-0 w-px bg-foreground/40"
+                  style={{ left: "90%" }}
+                >
+                  <span className="absolute -top-1 -translate-x-1/2 text-[9px] font-bold text-foreground/60 uppercase tracking-wider whitespace-nowrap">
+                    90%
                   </span>
-                  {r.tag === "sparse" && (
-                    <span className="text-[10px] rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-1.5 py-0.5">
-                      Sparse
-                    </span>
-                  )}
+                </div>
+                <div className="space-y-2.5">
+                  {sortedAntigens.map((a) => {
+                    const barColor =
+                      a.coverage >= 90
+                        ? "bg-primary"
+                        : a.coverage >= 80
+                          ? "bg-amber-500"
+                          : "bg-destructive";
+                    return (
+                      <div key={a.antigen} className="grid grid-cols-[110px_1fr_46px] items-center gap-3 text-xs">
+                        <span className="font-semibold text-foreground/80 truncate">{a.antigen}</span>
+                        <div className="h-2.5 rounded-sm bg-muted overflow-hidden">
+                          <div className={"h-full " + barColor} style={{ width: `${a.coverage}%` }} />
+                        </div>
+                        <span className="text-right font-bold tabular-nums">{a.coverage}%</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> On time (±2w)</span>
-            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-500" /> Late</span>
-            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-400" /> Missed</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <FacilityRankList
-          title="Top performing facilities"
-          subtitle="By on-time adherence"
-          rows={TOP_FACILITIES}
-          tone="good"
-        />
-        <FacilityRankList
-          title="Needs attention"
-          subtitle="Lowest on-time adherence · bottom 5"
-          rows={NEEDS_ATTENTION}
-          tone="bad"
-        />
-      </div>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base">SE alerts · cross-facility</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">Open and escalated</p>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary">
-              All alerts <ChevronRight className="h-3.5 w-3.5" />
-            </Button>
           </div>
-        </CardHeader>
-        <CardContent className="divide-y">
-          {SE_ALERTS.filter((a) => a.status !== "resolved").slice(0, 4).map((a) => (
-            <div key={a.id} className="py-3.5 flex items-start justify-between gap-4 first:pt-0 last:pb-0">
-              <div className="min-w-0">
-                <div className="text-sm">
-                  <span className="font-medium">{a.name}</span>
-                  <span className="text-muted-foreground"> · {a.facility}</span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-0.5">{a.detail}</div>
-                <div className="text-[11px] text-muted-foreground mt-1 font-mono">
-                  {a.dose} · batch {a.batch}
-                </div>
-              </div>
-              <span className={"inline-flex items-center gap-1.5 shrink-0 rounded-full border text-[11px] font-medium px-2 py-0.5 " + severityChip(a.severity)}>
-                <span className={"h-1.5 w-1.5 rounded-full " + severityDot(a.severity)} />
-                {a.severity}
+
+          {/* On-time Adherence */}
+          <div className="rounded-xl border bg-card shadow-sm">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-tight">On-time adherence by dose</h3>
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-primary uppercase tracking-wider">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Leading indicator
               </span>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+            <div className="p-6 space-y-5">
+              {ADHERENCE_BY_DOSE.map((r) => {
+                if (r.notMeasurable) {
+                  return (
+                    <div key={r.dose} className="grid grid-cols-[minmax(180px,220px)_1fr_50px] gap-4 items-center opacity-60">
+                      <div>
+                        <div className="text-xs font-bold text-muted-foreground">{r.dose}</div>
+                        <div className="text-[11px] text-muted-foreground mt-0.5">{r.age}</div>
+                      </div>
+                      <div className="h-2 rounded border border-dashed border-border grid place-items-center text-[10px] text-muted-foreground">
+                        Not measurable · {r.notMeasurable}
+                      </div>
+                      <span className="text-xs text-muted-foreground text-right">—</span>
+                    </div>
+                  );
+                }
+                const barColor = r.adherence! >= 90 ? "bg-primary" : r.adherence! >= 80 ? "bg-amber-500" : "bg-destructive";
+                return (
+                  <div key={r.dose} className="space-y-1.5">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <span className="text-xs font-bold text-foreground">{r.dose}</span>
+                        <span className="text-[11px] text-muted-foreground ml-2">
+                          {r.age} · {r.eligible.toLocaleString()} eligible
+                        </span>
+                      </div>
+                      <span className="text-xs font-black tabular-nums">{r.adherence}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <div className={"h-full rounded-full " + barColor} style={{ width: `${r.adherence}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Triage & Alerts */}
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          {/* SE Alerts — critical panel */}
+          <div className="rounded-xl border border-destructive/25 bg-destructive/5 shadow-sm overflow-hidden">
+            <div className="px-4 py-3 bg-destructive flex items-center justify-between">
+              <h3 className="text-xs font-bold text-destructive-foreground uppercase tracking-wider">
+                Critical alerts (SE)
+              </h3>
+              <span className="bg-background text-destructive text-[10px] font-black px-1.5 py-0.5 rounded">
+                {openAlerts.length} OPEN
+              </span>
+            </div>
+            <div className="divide-y divide-destructive/10">
+              {openAlerts.slice(0, 4).map((a) => (
+                <div key={a.id} className="p-4">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-[10px] font-bold text-destructive uppercase tracking-wider truncate">
+                      {a.facility}
+                    </span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                      {a.severity}
+                    </span>
+                  </div>
+                  <p className="text-xs text-foreground/80 font-medium leading-relaxed">
+                    {a.detail}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground mt-1 font-mono">
+                    {a.dose} · batch {a.batch}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="p-3 border-t border-destructive/10 bg-background">
+              <button className="w-full py-1.5 text-[10px] font-bold text-destructive uppercase tracking-widest hover:bg-destructive/5 rounded transition-colors inline-flex items-center justify-center gap-1">
+                All alerts <ChevronRight className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Facility performance combined */}
+          <div className="rounded-xl border bg-card shadow-sm">
+            <div className="px-4 py-3 border-b">
+              <h3 className="text-xs font-bold uppercase tracking-tight">Facility performance</h3>
+            </div>
+            <div className="p-4">
+              <div className="mb-5">
+                <p className="text-[9px] font-black text-destructive uppercase tracking-widest mb-2">
+                  Needs attention
+                </p>
+                <div className="space-y-2">
+                  {NEEDS_ATTENTION.slice(0, 3).map((r) => (
+                    <div key={r.name} className="flex items-center justify-between text-xs gap-2">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-foreground truncate">{r.name}</div>
+                        <div className="text-[10px] text-muted-foreground">{r.region}</div>
+                      </div>
+                      <span className="text-destructive font-bold tabular-nums shrink-0">
+                        {r.adherence}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-2">
+                  Top performing
+                </p>
+                <div className="space-y-2">
+                  {TOP_FACILITIES.slice(0, 3).map((r) => (
+                    <div key={r.name} className="flex items-center justify-between text-xs gap-2">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-foreground truncate">{r.name}</div>
+                        <div className="text-[10px] text-muted-foreground">{r.region}</div>
+                      </div>
+                      <span className="text-primary font-bold tabular-nums shrink-0">
+                        {r.adherence}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <button className="w-full mt-5 py-2 border rounded-lg text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:bg-muted transition-colors">
+                View all facilities
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-function FacilityRankList({
-  title,
-  subtitle,
-  rows,
+function BucketStat({
+  label,
+  value,
+  hint,
   tone,
 }: {
-  title: string;
-  subtitle: string;
-  rows: { name: string; region: string; babies: number; adherence: number }[];
-  tone: "good" | "bad";
+  label: string;
+  value: number;
+  hint: string;
+  tone: "good" | "warn" | "bad";
 }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base">{title}</CardTitle>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
-      </CardHeader>
-      <CardContent className="divide-y">
-        {rows.map((r, i) => {
-          const barColor =
-            tone === "bad" && r.adherence < 65
-              ? "bg-red-400"
-              : r.adherence >= 80
-                ? "bg-emerald-500"
-                : "bg-amber-500";
-          const numColor =
-            tone === "bad"
-              ? "text-destructive"
-              : r.adherence >= 80
-                ? "text-emerald-600"
-                : "text-foreground";
-          return (
-            <div key={r.name} className="py-3 flex items-center gap-3 first:pt-0 last:pb-0">
-              <span className="text-xs text-muted-foreground w-6">#{i + 1}</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{r.name}</div>
-                <div className="text-xs text-muted-foreground">{r.region} · {r.babies} babies</div>
-              </div>
-              <div className="w-24 h-1.5 rounded-full bg-muted overflow-hidden">
-                <div className={"h-full " + barColor} style={{ width: `${r.adherence}%` }} />
-              </div>
-              <div className={"text-sm font-semibold tabular-nums w-10 text-right " + numColor}>
-                {r.adherence}%
-              </div>
-            </div>
-          );
-        })}
-      </CardContent>
-    </Card>
-  );
-}
-
-function CoverageSummary() {
-  const overall = Math.round(ANTIGENS.reduce((s, a) => s + a.coverage, 0) / ANTIGENS.length);
-  const onTarget = ANTIGENS.filter((a) => a.coverage >= 90).length;
-  const watch = ANTIGENS.filter((a) => a.coverage >= 80 && a.coverage < 90).length;
-  const atRisk = ANTIGENS.filter((a) => a.coverage < 80).length;
-  const sorted = [...ANTIGENS].sort((a, b) => b.coverage - a.coverage);
-  const best = sorted[0];
-  const worst = sorted[sorted.length - 1];
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <CardTitle className="text-base">Coverage summary</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Fully immunized rate against the 90% national target, across all antigens.</p>
-          </div>
-          <Badge variant="outline" className="border-primary text-primary">Target 90%</Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-center">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">Overall coverage</div>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-4xl font-semibold tabular-nums">{overall}%</span>
-              <span className="text-xs text-muted-foreground">avg across {ANTIGENS.length} antigens</span>
-            </div>
-            <div className="relative mt-3 h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className={
-                  "h-full " +
-                  (overall >= 90 ? "bg-primary" : overall >= 80 ? "bg-amber-500" : "bg-destructive")
-                }
-                style={{ width: `${overall}%` }}
-              />
-              <div className="absolute top-1/2 -translate-y-1/2 h-3 w-0.5 bg-foreground/70" style={{ left: "90%" }} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <SummaryStat label="On target" value={onTarget} tone="good" hint="≥ 90%" />
-            <SummaryStat label="Watch" value={watch} tone="warn" hint="80–89%" />
-            <SummaryStat label="At risk" value={atRisk} tone="bad" hint="< 80%" />
-          </div>
-        </div>
-
-        <div className="mt-5 pt-4 border-t grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-muted-foreground">Best performing antigen</div>
-              <div className="font-medium">{best.antigen}</div>
-            </div>
-            <span className="text-emerald-600 font-semibold tabular-nums">{best.coverage}%</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs text-muted-foreground">Lowest coverage</div>
-              <div className="font-medium">{worst.antigen}</div>
-            </div>
-            <span className="text-destructive font-semibold tabular-nums">{worst.coverage}%</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SummaryStat({ label, value, tone, hint }: { label: string; value: number; tone: "good" | "warn" | "bad"; hint: string }) {
-  const border = tone === "good" ? "border-l-primary" : tone === "warn" ? "border-l-amber-500" : "border-l-destructive";
   const num = tone === "good" ? "text-primary" : tone === "warn" ? "text-amber-600" : "text-destructive";
+  const border = tone === "good" ? "border-l-primary" : tone === "warn" ? "border-l-amber-500" : "border-l-destructive";
   return (
-    <div className={"rounded-lg border border-l-4 p-3 " + border}>
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className={"mt-0.5 text-2xl font-semibold tabular-nums " + num}>{value}</div>
-      <div className="text-[11px] text-muted-foreground">{hint}</div>
+    <div className={"rounded-lg border border-l-4 bg-background p-3 " + border}>
+      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className={"mt-0.5 text-2xl font-black tabular-nums " + num}>{value}</div>
+      <div className="text-[10px] text-muted-foreground">{hint}</div>
     </div>
   );
 }

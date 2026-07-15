@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, Minus, MapPin } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, MapPin, Building2, TrendingUp, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/lafy/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ANTIGENS, COVERAGE_BY_LOCATION } from "@/lib/lafy-data";
 
 export const Route = createFileRoute("/implementor/coverage")({
@@ -17,39 +24,16 @@ export const Route = createFileRoute("/implementor/coverage")({
   component: CoveragePage,
 });
 
-const CHANNEL_FILTERS = ["All", "WhatsApp", "Voice"] as const;
-type Channel = (typeof CHANNEL_FILTERS)[number];
+type Location = (typeof COVERAGE_BY_LOCATION)[number];
 
 function CoveragePage() {
-  const [channel, setChannel] = useState<Channel>("All");
-
-  const adj = (v: number) => {
-    if (channel === "WhatsApp") return Math.min(100, Math.round(v * 1.04));
-    if (channel === "Voice") return Math.max(0, Math.round(v * 0.94));
-    return v;
-  };
+  const [selectedLoc, setSelectedLoc] = useState<Location | null>(null);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Coverage"
         description="Immunization coverage against the 90% national target."
-        actions={
-          <div className="inline-flex rounded-md border p-0.5 bg-background">
-            {CHANNEL_FILTERS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setChannel(c)}
-                className={
-                  "px-3 py-1.5 text-xs font-medium rounded-sm transition-colors " +
-                  (channel === c ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")
-                }
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        }
       />
 
       <Tabs defaultValue="antigen" className="space-y-4">
@@ -79,7 +63,7 @@ function CoveragePage() {
                   </thead>
                   <tbody>
                     {ANTIGENS.map((a) => {
-                      const cov = adj(a.coverage);
+                      const cov = a.coverage;
                       const meets = cov >= 90;
                       return (
                         <tr key={a.antigen} className="border-b last:border-0">
@@ -144,10 +128,14 @@ function CoveragePage() {
                   </thead>
                   <tbody>
                     {COVERAGE_BY_LOCATION.map((r) => {
-                      const c = adj(r.completion);
+                      const c = r.completion;
                       const meets = c >= 90;
                       return (
-                        <tr key={r.location} className="border-b last:border-0">
+                        <tr
+                          key={r.location}
+                          onClick={() => setSelectedLoc(r)}
+                          className="border-b last:border-0 cursor-pointer hover:bg-muted/40"
+                        >
                           <td className="py-3 pr-4 font-medium">
                             <span className="inline-flex items-center gap-2">
                               <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
@@ -177,6 +165,71 @@ function CoveragePage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <LocationInsightsDialog location={selectedLoc} onClose={() => setSelectedLoc(null)} />
+    </div>
+  );
+}
+
+function LocationInsightsDialog({
+  location,
+  onClose,
+}: {
+  location: Location | null;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog open={!!location} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
+        {location && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                {location.location}
+              </DialogTitle>
+              <DialogDescription>
+                Regional insights, gaps, and top-performing antigens.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-3 gap-3 py-2">
+              <MiniStat label="Completion" value={`${location.completion}%`} icon={<TrendingUp className="h-4 w-4 text-primary" />} />
+              <MiniStat label="Facilities" value={String(location.facilities)} icon={<Building2 className="h-4 w-4 text-primary" />} />
+              <MiniStat label="Gap to target" value={`${Math.max(0, 90 - location.completion)} pts`} icon={<AlertTriangle className="h-4 w-4 text-amber-500" />} />
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="text-sm font-medium mb-3">Antigen coverage in {location.location}</h4>
+              <div className="space-y-2">
+                {ANTIGENS.slice(0, 6).map((a) => {
+                  const v = Math.max(0, Math.min(100, Math.round((a.coverage * location.completion) / 82)));
+                  const bar = v >= 90 ? "bg-primary" : v >= 75 ? "bg-amber-500" : "bg-destructive";
+                  return (
+                    <div key={a.antigen} className="grid grid-cols-[110px_1fr_40px] items-center gap-3 text-xs">
+                      <span className="font-medium truncate">{a.antigen}</span>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div className={"h-full " + bar} style={{ width: `${v}%` }} />
+                      </div>
+                      <span className="tabular-nums text-right">{v}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MiniStat({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border p-3">
+      <div className="flex items-center justify-between">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+        {icon}
+      </div>
+      <div className="mt-1 text-xl font-semibold tabular-nums">{value}</div>
     </div>
   );
 }

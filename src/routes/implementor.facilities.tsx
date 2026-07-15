@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Building2, Clock, Signal, UserCheck, Plus, MapPin, Activity, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,7 @@ function statusFor(v: number) {
 }
 
 function FacilitiesPage() {
+  const navigate = useNavigate();
   const [facilities, setFacilities] = useState<Facility[]>(
     SITES.map((s) => ({ ...s, region: "Nairobi", type: "Public" })),
   );
@@ -122,7 +123,14 @@ function FacilitiesPage() {
         })}
       </div>
 
-      <FacilityDetailDialog facility={selected} onClose={() => setSelected(null)} />
+      <FacilityDetailDialog
+        facility={selected}
+        onClose={() => setSelected(null)}
+        onOpenProfile={(f) => {
+          setSelected(null);
+          navigate({ to: "/implementor/facilities/$slug", params: { slug: encodeURIComponent(f.name) } });
+        }}
+      />
     </div>
   );
 }
@@ -194,7 +202,15 @@ function AddFacilityDialog({ onCreate }: { onCreate: (f: Facility) => void }) {
   );
 }
 
-function FacilityDetailDialog({ facility, onClose }: { facility: Facility | null; onClose: () => void }) {
+function FacilityDetailDialog({
+  facility,
+  onClose,
+  onOpenProfile,
+}: {
+  facility: Facility | null;
+  onClose: () => void;
+  onOpenProfile: (f: Facility) => void;
+}) {
   return (
     <Dialog open={!!facility} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl">
@@ -244,7 +260,7 @@ function FacilityDetailDialog({ facility, onClose }: { facility: Facility | null
 
             <DialogFooter>
               <Button variant="outline" onClick={onClose}>Close</Button>
-              <Button>Open full profile</Button>
+              <Button onClick={() => onOpenProfile(facility)}>Open full profile</Button>
             </DialogFooter>
           </>
         )}

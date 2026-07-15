@@ -198,3 +198,122 @@ export const REPORTS = [
   { name: "Channel performance detail", type: "CSV", size: "128 KB", date: "2026-07-14" },
   { name: "Cohort funnel weekly", type: "CSV", size: "44 KB", date: "2026-07-13" },
 ];
+
+// Districts per region — used by the facility add flow and filters.
+export const REGION_DISTRICTS: Record<string, string[]> = {
+  Nairobi: ["Westlands", "Dagoretti", "Langata", "Kibra", "Kasarani", "Embakasi"],
+  "Greater Accra": ["Accra Metro", "Tema Metro", "Ga East", "Ga West", "Ledzokuku", "Ashaiman"],
+  Eastern: ["New Juaben", "Nsawam-Adoagyiri", "Akuapem North", "Yilo Krobo"],
+  Central: ["Cape Coast", "Kasoa", "Mfantseman", "Awutu Senya"],
+  Western: ["Sekondi-Takoradi", "Ahanta West", "Tarkwa-Nsuaem"],
+  Ashanti: ["Kumasi Metro", "Obuasi", "Ejisu", "Asokore Mampong"],
+  Volta: ["Ho", "Keta", "Hohoe"],
+};
+
+// Extended facility catalogue used across coverage-by-location and facility list.
+// Kept deterministic and small.
+export type FacilityListing = {
+  name: string;
+  region: string;
+  district: string;
+  type: "Public" | "Private" | "CHPS" | "Faith-based";
+  coverage: number;
+  adherence: number;
+  babies: number;
+};
+
+export const FACILITIES_BY_LOCATION: Record<string, FacilityListing[]> = {
+  "Greater Accra": [
+    { name: "Korle Bu Teaching Hospital", region: "Greater Accra", district: "Accra Metro", type: "Public", coverage: 91, adherence: 81, babies: 487 },
+    { name: "Ridge Hospital", region: "Greater Accra", district: "Accra Metro", type: "Public", coverage: 87, adherence: 76, babies: 312 },
+    { name: "Tema General Hospital", region: "Greater Accra", district: "Tema Metro", type: "Public", coverage: 86, adherence: 78, babies: 341 },
+    { name: "Adabraka Polyclinic", region: "Greater Accra", district: "Accra Metro", type: "Public", coverage: 84, adherence: 79, babies: 198 },
+    { name: "Madina CHPS", region: "Greater Accra", district: "Ga East", type: "CHPS", coverage: 72, adherence: 64, babies: 142 },
+    { name: "Dodowa CHPS", region: "Greater Accra", district: "Ga East", type: "CHPS", coverage: 68, adherence: 58, babies: 88 },
+  ],
+  Ashanti: [
+    { name: "Komfo Anokye Teaching Hospital", region: "Ashanti", district: "Kumasi Metro", type: "Public", coverage: 88, adherence: 80, babies: 512 },
+    { name: "Manhyia Hospital", region: "Ashanti", district: "Kumasi Metro", type: "Public", coverage: 82, adherence: 75, babies: 246 },
+    { name: "Obuasi Government Hospital", region: "Ashanti", district: "Obuasi", type: "Public", coverage: 79, adherence: 72, babies: 188 },
+  ],
+  Central: [
+    { name: "Cape Coast Teaching Hospital", region: "Central", district: "Cape Coast", type: "Public", coverage: 81, adherence: 74, babies: 288 },
+    { name: "Kasoa Polyclinic", region: "Central", district: "Kasoa", type: "Public", coverage: 74, adherence: 70, babies: 224 },
+  ],
+  Eastern: [
+    { name: "Nsawam Government Hospital", region: "Eastern", district: "Nsawam-Adoagyiri", type: "Public", coverage: 76, adherence: 74, babies: 271 },
+    { name: "Akropong Health Centre", region: "Eastern", district: "Akuapem North", type: "Public", coverage: 71, adherence: 68, babies: 119 },
+    { name: "Aburi CHPS", region: "Eastern", district: "Akuapem North", type: "CHPS", coverage: 62, adherence: 54, babies: 67 },
+  ],
+  Western: [
+    { name: "Effia-Nkwanta Hospital", region: "Western", district: "Sekondi-Takoradi", type: "Public", coverage: 74, adherence: 71, babies: 210 },
+    { name: "Tarkwa Municipal", region: "Western", district: "Tarkwa-Nsuaem", type: "Public", coverage: 66, adherence: 63, babies: 132 },
+  ],
+  Volta: [
+    { name: "Ho Teaching Hospital", region: "Volta", district: "Ho", type: "Public", coverage: 72, adherence: 69, babies: 244 },
+    { name: "Keta Municipal Hospital", region: "Volta", district: "Keta", type: "Public", coverage: 63, adherence: 61, babies: 108 },
+  ],
+};
+
+// Patient analytics — deterministic mock data for the Patient dashboard.
+export const PATIENT_AGE_DISTRIBUTION = [
+  { band: "0–6 wks", count: 412 },
+  { band: "6 wks–3 mo", count: 638 },
+  { band: "3–6 mo", count: 812 },
+  { band: "6–9 mo", count: 704 },
+  { band: "9–12 mo", count: 588 },
+  { band: "12–18 mo", count: 462 },
+  { band: "18–24 mo", count: 314 },
+];
+
+export const PATIENT_DOSE_COMPLETION = [
+  { dose: "BCG + OPV 0", scheduled: 2412, completed: 2364, rate: 98 },
+  { dose: "DPT-HepB-Hib 1", scheduled: 2188, completed: 2013, rate: 92 },
+  { dose: "DPT-HepB-Hib 2", scheduled: 1944, completed: 1711, rate: 88 },
+  { dose: "DPT-HepB-Hib 3", scheduled: 1601, completed: 1345, rate: 84 },
+  { dose: "Measles-Rubella 1", scheduled: 1188, completed: 903, rate: 76 },
+  { dose: "Vit A · RTS,S 1", scheduled: 612, completed: 490, rate: 80 },
+];
+
+export const PATIENT_STATUS = [
+  { label: "On schedule", value: 3814, tone: "good" as const },
+  { label: "Overdue (1–14 d)", value: 486, tone: "warn" as const },
+  { label: "Overdue (>14 d)", value: 218, tone: "bad" as const },
+  { label: "Dropped off", value: 142, tone: "bad" as const },
+];
+
+export const PATIENT_DROPOFFS = [
+  { stage: "BCG → Penta 1", drop: 4.2 },
+  { stage: "Penta 1 → Penta 2", drop: 5.6 },
+  { stage: "Penta 2 → Penta 3", drop: 6.4 },
+  { stage: "Penta 3 → Measles 1", drop: 8.9 },
+  { stage: "Measles 1 → Measles 2", drop: 12.7 },
+];
+
+export const PATIENT_OVERDUES = [
+  { id: "A-8241", ageMo: 4, dueDose: "Penta 2", daysLate: 3, facility: "Kibera Health Ctr", channel: "WhatsApp" },
+  { id: "A-8244", ageMo: 6, dueDose: "Penta 3", daysLate: 5, facility: "Mathare North", channel: "Voice" },
+  { id: "A-8258", ageMo: 4, dueDose: "Penta 2", daysLate: 7, facility: "Dandora Dispensary", channel: "Voice" },
+  { id: "A-8262", ageMo: 15, dueDose: "Measles 2", daysLate: 4, facility: "Korogocho HC", channel: "WhatsApp" },
+  { id: "A-8274", ageMo: 6, dueDose: "PCV 3", daysLate: 6, facility: "Mukuru Kwa Njenga", channel: "WhatsApp" },
+  { id: "A-8281", ageMo: 9, dueDose: "Measles 1", daysLate: 9, facility: "Kawangware PHC", channel: "Voice" },
+];
+
+export const PATIENT_INSIGHTS = [
+  { title: "9-month cohort has the highest drop-off", detail: "Measles 1 → Measles 2 drop-off spiked to 12.7%. Prioritise outreach for children born Oct 2025." },
+  { title: "Voice IVR outperforms SMS for overdue recovery", detail: "68% of >14-day overdue caregivers reached via IVR converted to a rebooking, vs. 41% via SMS." },
+  { title: "Rural districts drive most drop-offs", detail: "Akuapem North and Keta account for 42% of dropped patients despite 18% of enrolment." },
+  { title: "Boys 6–9 mo are slightly under-served", detail: "Coverage gap of 3.1pts between boys and girls in the 6–9 mo band — worth monitoring." },
+];
+
+// 8-week adherence trend used on the facility profile.
+export const FACILITY_ADHERENCE_TREND = [
+  { week: "W-8", adherence: 74 },
+  { week: "W-7", adherence: 76 },
+  { week: "W-6", adherence: 78 },
+  { week: "W-5", adherence: 81 },
+  { week: "W-4", adherence: 85 },
+  { week: "W-3", adherence: 84 },
+  { week: "W-2", adherence: 88 },
+  { week: "W-1", adherence: 91 },
+];

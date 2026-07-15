@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
 import { Route as ImplementorReportsRouteImport } from './routes/implementor.reports'
 import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
+import { Route as ImplementorCoverageRouteImport } from './routes/implementor.coverage'
 
 const ImplementorRoute = ImplementorRouteImport.update({
   id: '/implementor',
@@ -40,16 +41,23 @@ const ImplementorDashboardRoute = ImplementorDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => ImplementorRoute,
 } as any)
+const ImplementorCoverageRoute = ImplementorCoverageRouteImport.update({
+  id: '/coverage',
+  path: '/coverage',
+  getParentRoute: () => ImplementorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/implementor': typeof ImplementorRouteWithChildren
+  '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor': typeof ImplementorIndexRoute
@@ -58,6 +66,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/implementor': typeof ImplementorRouteWithChildren
+  '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/': typeof ImplementorIndexRoute
@@ -67,15 +76,22 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/implementor'
+    | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/reports'
     | '/implementor/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/implementor/dashboard' | '/implementor/reports' | '/implementor'
+  to:
+    | '/'
+    | '/implementor/coverage'
+    | '/implementor/dashboard'
+    | '/implementor/reports'
+    | '/implementor'
   id:
     | '__root__'
     | '/'
     | '/implementor'
+    | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/reports'
     | '/implementor/'
@@ -123,16 +139,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorDashboardRouteImport
       parentRoute: typeof ImplementorRoute
     }
+    '/implementor/coverage': {
+      id: '/implementor/coverage'
+      path: '/coverage'
+      fullPath: '/implementor/coverage'
+      preLoaderRoute: typeof ImplementorCoverageRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
   }
 }
 
 interface ImplementorRouteChildren {
+  ImplementorCoverageRoute: typeof ImplementorCoverageRoute
   ImplementorDashboardRoute: typeof ImplementorDashboardRoute
   ImplementorReportsRoute: typeof ImplementorReportsRoute
   ImplementorIndexRoute: typeof ImplementorIndexRoute
 }
 
 const ImplementorRouteChildren: ImplementorRouteChildren = {
+  ImplementorCoverageRoute: ImplementorCoverageRoute,
   ImplementorDashboardRoute: ImplementorDashboardRoute,
   ImplementorReportsRoute: ImplementorReportsRoute,
   ImplementorIndexRoute: ImplementorIndexRoute,

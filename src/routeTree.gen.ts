@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ImplementorRouteImport } from './routes/implementor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
+import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
 
 const ImplementorRoute = ImplementorRouteImport.update({
   id: '/implementor',
@@ -28,28 +29,41 @@ const ImplementorIndexRoute = ImplementorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ImplementorRoute,
 } as any)
+const ImplementorDashboardRoute = ImplementorDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => ImplementorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/implementor': typeof ImplementorRouteWithChildren
+  '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor': typeof ImplementorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/implementor': typeof ImplementorRouteWithChildren
+  '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/': typeof ImplementorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/implementor' | '/implementor/'
+  fullPaths: '/' | '/implementor' | '/implementor/dashboard' | '/implementor/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/implementor'
-  id: '__root__' | '/' | '/implementor' | '/implementor/'
+  to: '/' | '/implementor/dashboard' | '/implementor'
+  id:
+    | '__root__'
+    | '/'
+    | '/implementor'
+    | '/implementor/dashboard'
+    | '/implementor/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,14 +94,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorIndexRouteImport
       parentRoute: typeof ImplementorRoute
     }
+    '/implementor/dashboard': {
+      id: '/implementor/dashboard'
+      path: '/dashboard'
+      fullPath: '/implementor/dashboard'
+      preLoaderRoute: typeof ImplementorDashboardRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
   }
 }
 
 interface ImplementorRouteChildren {
+  ImplementorDashboardRoute: typeof ImplementorDashboardRoute
   ImplementorIndexRoute: typeof ImplementorIndexRoute
 }
 
 const ImplementorRouteChildren: ImplementorRouteChildren = {
+  ImplementorDashboardRoute: ImplementorDashboardRoute,
   ImplementorIndexRoute: ImplementorIndexRoute,
 }
 

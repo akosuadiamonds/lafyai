@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Clock, MapPin, Syringe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/lafy/page-header";
 import { SE_ALERTS, type SEAlert } from "@/lib/lafy-data";
 
@@ -20,15 +19,25 @@ export const Route = createFileRoute("/implementor/se-alerts")({
 const FILTERS = ["All", "Critical", "Moderate", "Mild", "Resolved"] as const;
 type Filter = (typeof FILTERS)[number];
 
-function sevChip(sev: SEAlert["severity"]) {
-  if (sev === "critical") return "bg-destructive/10 text-destructive border-destructive/20";
-  if (sev === "moderate") return "bg-amber-100 text-amber-800 border-amber-200";
-  return "bg-emerald-100 text-emerald-800 border-emerald-200";
-}
-function sevDot(sev: SEAlert["severity"]) {
-  if (sev === "critical") return "bg-destructive";
-  if (sev === "moderate") return "bg-amber-500";
-  return "bg-emerald-500";
+function sevAccent(sev: SEAlert["severity"]) {
+  if (sev === "critical") return {
+    bar: "bg-destructive",
+    chip: "bg-destructive text-destructive-foreground",
+    ring: "border-destructive/30",
+    text: "text-destructive",
+  };
+  if (sev === "moderate") return {
+    bar: "bg-amber-500",
+    chip: "bg-amber-500 text-white",
+    ring: "border-amber-300",
+    text: "text-amber-700",
+  };
+  return {
+    bar: "bg-emerald-500",
+    chip: "bg-emerald-500 text-white",
+    ring: "border-emerald-300",
+    text: "text-emerald-700",
+  };
 }
 
 function SEAlertsPage() {
@@ -80,30 +89,37 @@ function SEAlertsPage() {
           <CardTitle className="text-base">Alerts</CardTitle>
           <p className="text-xs text-muted-foreground">{rows.length} matching · sorted by recency</p>
         </CardHeader>
-        <CardContent className="divide-y">
-          {rows.map((a) => (
-            <div key={a.id} className="py-4 flex items-start justify-between gap-4 first:pt-0 last:pb-0">
-              <div className="min-w-0">
-                <div className="text-sm">
-                  <span className="font-medium">{a.name}</span>
-                  <span className="text-muted-foreground"> · {a.facility}</span>
-                  <span className="text-muted-foreground text-xs"> · {a.reportedAt}</span>
-                </div>
-                <div className="text-sm text-muted-foreground mt-0.5">{a.detail}</div>
-                <div className="text-[11px] text-muted-foreground mt-1 font-mono">
-                  {a.id} · {a.dose} · batch {a.batch}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className={"inline-flex items-center gap-1.5 rounded-full border text-[11px] font-medium px-2 py-0.5 " + sevChip(a.severity)}>
-                  <span className={"h-1.5 w-1.5 rounded-full " + sevDot(a.severity)} />
-                  {a.severity}
-                </span>
-                <Badge variant="outline" className="capitalize">{a.status}</Badge>
-                <Button size="sm" variant="outline">Review</Button>
-              </div>
-            </div>
-          ))}
+        <CardContent className="p-0">
+          <ul className="divide-y">
+            {rows.map((a) => {
+              const acc = sevAccent(a.severity);
+              return (
+                <li key={a.id} className={"relative flex gap-4 px-5 py-4 hover:bg-muted/40 transition-colors border-l-4 " + acc.ring.replace("border-", "border-l-")}>
+                  <div className={"h-9 w-9 shrink-0 rounded-full grid place-items-center " + acc.chip}>
+                    <AlertTriangle className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="text-sm font-semibold">{a.name}</span>
+                      <span className={"text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 " + acc.chip}>
+                        {a.severity}
+                      </span>
+                      <Badge variant="outline" className="capitalize text-[10px]">{a.status}</Badge>
+                      <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Clock className="h-3 w-3" /> {a.reportedAt}
+                      </span>
+                    </div>
+                    <p className="text-sm text-foreground/80 mt-1.5 leading-relaxed">{a.detail}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {a.facility}</span>
+                      <span className="inline-flex items-center gap-1"><Syringe className="h-3 w-3" /> {a.dose}</span>
+                      <span className="font-mono">{a.id} · batch {a.batch}</span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
           {rows.length === 0 && (
             <div className="py-10 text-center text-sm text-muted-foreground">No alerts match this filter.</div>
           )}

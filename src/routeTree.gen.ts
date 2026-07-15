@@ -15,9 +15,9 @@ import { Route as ImplementorIndexRouteImport } from './routes/implementor.index
 import { Route as ImplementorSeAlertsRouteImport } from './routes/implementor.se-alerts'
 import { Route as ImplementorReportsRouteImport } from './routes/implementor.reports'
 import { Route as ImplementorProgramsRouteImport } from './routes/implementor.programs'
-import { Route as ImplementorFacilitiesRouteImport } from './routes/implementor.facilities'
 import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
 import { Route as ImplementorCoverageRouteImport } from './routes/implementor.coverage'
+import { Route as ImplementorFacilitiesIndexRouteImport } from './routes/implementor.facilities.index'
 import { Route as ImplementorFacilitiesSlugRouteImport } from './routes/implementor.facilities.$slug'
 
 const ImplementorRoute = ImplementorRouteImport.update({
@@ -50,11 +50,6 @@ const ImplementorProgramsRoute = ImplementorProgramsRouteImport.update({
   path: '/programs',
   getParentRoute: () => ImplementorRoute,
 } as any)
-const ImplementorFacilitiesRoute = ImplementorFacilitiesRouteImport.update({
-  id: '/facilities',
-  path: '/facilities',
-  getParentRoute: () => ImplementorRoute,
-} as any)
 const ImplementorDashboardRoute = ImplementorDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -65,11 +60,17 @@ const ImplementorCoverageRoute = ImplementorCoverageRouteImport.update({
   path: '/coverage',
   getParentRoute: () => ImplementorRoute,
 } as any)
+const ImplementorFacilitiesIndexRoute =
+  ImplementorFacilitiesIndexRouteImport.update({
+    id: '/facilities/',
+    path: '/facilities/',
+    getParentRoute: () => ImplementorRoute,
+  } as any)
 const ImplementorFacilitiesSlugRoute =
   ImplementorFacilitiesSlugRouteImport.update({
-    id: '/$slug',
-    path: '/$slug',
-    getParentRoute: () => ImplementorFacilitiesRoute,
+    id: '/facilities/$slug',
+    path: '/facilities/$slug',
+    getParentRoute: () => ImplementorRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -77,23 +78,23 @@ export interface FileRoutesByFullPath {
   '/implementor': typeof ImplementorRouteWithChildren
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
-  '/implementor/facilities': typeof ImplementorFacilitiesRouteWithChildren
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
   '/implementor/': typeof ImplementorIndexRoute
   '/implementor/facilities/$slug': typeof ImplementorFacilitiesSlugRoute
+  '/implementor/facilities/': typeof ImplementorFacilitiesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
-  '/implementor/facilities': typeof ImplementorFacilitiesRouteWithChildren
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
   '/implementor': typeof ImplementorIndexRoute
   '/implementor/facilities/$slug': typeof ImplementorFacilitiesSlugRoute
+  '/implementor/facilities': typeof ImplementorFacilitiesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,12 +102,12 @@ export interface FileRoutesById {
   '/implementor': typeof ImplementorRouteWithChildren
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
-  '/implementor/facilities': typeof ImplementorFacilitiesRouteWithChildren
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
   '/implementor/': typeof ImplementorIndexRoute
   '/implementor/facilities/$slug': typeof ImplementorFacilitiesSlugRoute
+  '/implementor/facilities/': typeof ImplementorFacilitiesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,35 +116,35 @@ export interface FileRouteTypes {
     | '/implementor'
     | '/implementor/coverage'
     | '/implementor/dashboard'
-    | '/implementor/facilities'
     | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/se-alerts'
     | '/implementor/'
     | '/implementor/facilities/$slug'
+    | '/implementor/facilities/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/implementor/coverage'
     | '/implementor/dashboard'
-    | '/implementor/facilities'
     | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/se-alerts'
     | '/implementor'
     | '/implementor/facilities/$slug'
+    | '/implementor/facilities'
   id:
     | '__root__'
     | '/'
     | '/implementor'
     | '/implementor/coverage'
     | '/implementor/dashboard'
-    | '/implementor/facilities'
     | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/se-alerts'
     | '/implementor/'
     | '/implementor/facilities/$slug'
+    | '/implementor/facilities/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -195,13 +196,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorProgramsRouteImport
       parentRoute: typeof ImplementorRoute
     }
-    '/implementor/facilities': {
-      id: '/implementor/facilities'
-      path: '/facilities'
-      fullPath: '/implementor/facilities'
-      preLoaderRoute: typeof ImplementorFacilitiesRouteImport
-      parentRoute: typeof ImplementorRoute
-    }
     '/implementor/dashboard': {
       id: '/implementor/dashboard'
       path: '/dashboard'
@@ -216,47 +210,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorCoverageRouteImport
       parentRoute: typeof ImplementorRoute
     }
+    '/implementor/facilities/': {
+      id: '/implementor/facilities/'
+      path: '/facilities'
+      fullPath: '/implementor/facilities/'
+      preLoaderRoute: typeof ImplementorFacilitiesIndexRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
     '/implementor/facilities/$slug': {
       id: '/implementor/facilities/$slug'
-      path: '/$slug'
+      path: '/facilities/$slug'
       fullPath: '/implementor/facilities/$slug'
       preLoaderRoute: typeof ImplementorFacilitiesSlugRouteImport
-      parentRoute: typeof ImplementorFacilitiesRoute
+      parentRoute: typeof ImplementorRoute
     }
   }
 }
 
-interface ImplementorFacilitiesRouteChildren {
-  ImplementorFacilitiesSlugRoute: typeof ImplementorFacilitiesSlugRoute
-}
-
-const ImplementorFacilitiesRouteChildren: ImplementorFacilitiesRouteChildren = {
-  ImplementorFacilitiesSlugRoute: ImplementorFacilitiesSlugRoute,
-}
-
-const ImplementorFacilitiesRouteWithChildren =
-  ImplementorFacilitiesRoute._addFileChildren(
-    ImplementorFacilitiesRouteChildren,
-  )
-
 interface ImplementorRouteChildren {
   ImplementorCoverageRoute: typeof ImplementorCoverageRoute
   ImplementorDashboardRoute: typeof ImplementorDashboardRoute
-  ImplementorFacilitiesRoute: typeof ImplementorFacilitiesRouteWithChildren
   ImplementorProgramsRoute: typeof ImplementorProgramsRoute
   ImplementorReportsRoute: typeof ImplementorReportsRoute
   ImplementorSeAlertsRoute: typeof ImplementorSeAlertsRoute
   ImplementorIndexRoute: typeof ImplementorIndexRoute
+  ImplementorFacilitiesSlugRoute: typeof ImplementorFacilitiesSlugRoute
+  ImplementorFacilitiesIndexRoute: typeof ImplementorFacilitiesIndexRoute
 }
 
 const ImplementorRouteChildren: ImplementorRouteChildren = {
   ImplementorCoverageRoute: ImplementorCoverageRoute,
   ImplementorDashboardRoute: ImplementorDashboardRoute,
-  ImplementorFacilitiesRoute: ImplementorFacilitiesRouteWithChildren,
   ImplementorProgramsRoute: ImplementorProgramsRoute,
   ImplementorReportsRoute: ImplementorReportsRoute,
   ImplementorSeAlertsRoute: ImplementorSeAlertsRoute,
   ImplementorIndexRoute: ImplementorIndexRoute,
+  ImplementorFacilitiesSlugRoute: ImplementorFacilitiesSlugRoute,
+  ImplementorFacilitiesIndexRoute: ImplementorFacilitiesIndexRoute,
 }
 
 const ImplementorRouteWithChildren = ImplementorRoute._addFileChildren(

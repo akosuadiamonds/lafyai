@@ -3,8 +3,8 @@ import {
   LayoutDashboard,
   Syringe,
   Building2,
-  Users,
-  Gauge,
+  FolderKanban,
+  AlertTriangle,
   FileDown,
   Leaf,
   Bell,
@@ -23,8 +23,8 @@ const NAV = [
   { to: "/implementor/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/implementor/coverage", label: "Coverage", icon: Syringe },
   { to: "/implementor/facilities", label: "Facilities", icon: Building2 },
-  { to: "/implementor/cohort", label: "Cohort & Follow-up", icon: Users },
-  { to: "/implementor/indicators", label: "M&E Indicators", icon: Gauge },
+  { to: "/implementor/programs", label: "Programs", icon: FolderKanban },
+  { to: "/implementor/se-alerts", label: "SE Alerts", icon: AlertTriangle },
   { to: "/implementor/reports", label: "Reports & Exports", icon: FileDown },
 ] as const;
 

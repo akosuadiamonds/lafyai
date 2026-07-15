@@ -123,7 +123,7 @@ function ProgramsPage() {
                     <div className="font-medium">{p.name}</div>
                     <div className="text-xs text-muted-foreground mt-0.5">{p.description}</div>
                     <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {p.startDate}</span>
+                      <span className="inline-flex items-center gap-1"><CalendarIcon className="h-3.5 w-3.5" /> {p.startDate}</span>
                       <span>·</span>
                       <span>{p.antigen}</span>
                       <span>·</span>

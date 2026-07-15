@@ -33,7 +33,7 @@ function ImplementorLayout() {
 
   return (
     <div className="min-h-screen w-full bg-muted/40 flex">
-      <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground">
+      <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground sticky top-0 h-screen">
         <div className="flex items-center gap-2 px-5 h-16 border-b border-sidebar-border">
           <div className="h-9 w-9 rounded-lg bg-sidebar-primary text-sidebar-primary-foreground grid place-items-center">
             <Leaf className="h-5 w-5" />

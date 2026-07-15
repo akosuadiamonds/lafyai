@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2, Clock, Signal, UserCheck, Plus, MapPin, Activity, Users } from "lucide-react";
+import { Building2, Clock, Signal, UserCheck, Plus, MapPin, Activity, Users, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/lafy/page-header";
-import { SITES } from "@/lib/lafy-data";
+import { SITES, REGION_DISTRICTS, TOP_FACILITIES, NEEDS_ATTENTION } from "@/lib/lafy-data";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/implementor/facilities/")({
   component: FacilitiesPage,
 });
 
-type Facility = (typeof SITES)[number] & { region?: string; type?: string };
+type Facility = (typeof SITES)[number] & { region?: string; district?: string; type?: string };
 
 function statusFor(v: number) {
   if (v >= 85) return { label: "On track", cls: "bg-primary/10 text-primary" };
@@ -46,7 +46,12 @@ function statusFor(v: number) {
 function FacilitiesPage() {
   const navigate = useNavigate();
   const [facilities, setFacilities] = useState<Facility[]>(
-    SITES.map((s) => ({ ...s, region: "Nairobi", type: "Public" })),
+    SITES.map((s, i) => ({
+      ...s,
+      region: "Nairobi",
+      district: REGION_DISTRICTS.Nairobi[i % REGION_DISTRICTS.Nairobi.length],
+      type: "Public",
+    })),
   );
   const [addOpen, setAddOpen] = useState(false);
   const [selected, setSelected] = useState<Facility | null>(null);
@@ -74,6 +79,22 @@ function FacilitiesPage() {
         }
       />
 
+      {/* Performance tiers */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <PerfPanel
+          tone="good"
+          title="Top performing"
+          icon={<TrendingUp className="h-4 w-4" />}
+          rows={TOP_FACILITIES}
+        />
+        <PerfPanel
+          tone="bad"
+          title="Needs attention"
+          icon={<TrendingDown className="h-4 w-4" />}
+          rows={NEEDS_ATTENTION}
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {facilities.map((s) => {
           const st = statusFor(s.coverage);
@@ -92,7 +113,9 @@ function FacilitiesPage() {
                       </div>
                       <div>
                         <div className="font-medium">{s.name}</div>
-                        <div className="text-xs text-muted-foreground">{s.region} · {s.type}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {s.region}{s.district ? ` · ${s.district}` : ""} · {s.type}
+                        </div>
                       </div>
                     </div>
                     <span className={"text-[11px] font-medium rounded-full px-2 py-0.5 " + st.cls}>{st.label}</span>
@@ -138,7 +161,9 @@ function FacilitiesPage() {
 function AddFacilityDialog({ onCreate }: { onCreate: (f: Facility) => void }) {
   const [name, setName] = useState("");
   const [region, setRegion] = useState("Nairobi");
+  const [district, setDistrict] = useState(REGION_DISTRICTS.Nairobi[0]);
   const [type, setType] = useState("Public");
+  const districts = REGION_DISTRICTS[region] ?? [];
 
   return (
     <DialogContent>
@@ -156,11 +181,28 @@ function AddFacilityDialog({ onCreate }: { onCreate: (f: Facility) => void }) {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Region</Label>
-            <Select value={region} onValueChange={setRegion}>
+            <Select
+              value={region}
+              onValueChange={(v) => {
+                setRegion(v);
+                setDistrict((REGION_DISTRICTS[v] ?? [""])[0]);
+              }}
+            >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {["Nairobi", "Greater Accra", "Eastern", "Central", "Western", "Ashanti", "Volta"].map((r) => (
+                {Object.keys(REGION_DISTRICTS).map((r) => (
                   <SelectItem key={r} value={r}>{r}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>District</Label>
+            <Select value={district} onValueChange={setDistrict}>
+              <SelectTrigger><SelectValue placeholder="Select district" /></SelectTrigger>
+              <SelectContent>
+                {districts.map((d) => (
+                  <SelectItem key={d} value={d}>{d}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -185,6 +227,7 @@ function AddFacilityDialog({ onCreate }: { onCreate: (f: Facility) => void }) {
             onCreate({
               name: name.trim(),
               region,
+              district,
               type,
               coverage: 0,
               adherence: 0,
@@ -199,6 +242,47 @@ function AddFacilityDialog({ onCreate }: { onCreate: (f: Facility) => void }) {
         </Button>
       </DialogFooter>
     </DialogContent>
+  );
+}
+
+function PerfPanel({
+  tone,
+  title,
+  icon,
+  rows,
+}: {
+  tone: "good" | "bad";
+  title: string;
+  icon: React.ReactNode;
+  rows: { name: string; region: string; babies: number; adherence: number }[];
+}) {
+  const accent = tone === "good" ? "text-primary" : "text-destructive";
+  const chip = tone === "good" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive";
+  const border = tone === "good" ? "border-l-primary" : "border-l-destructive";
+  return (
+    <div className={"rounded-xl border border-l-4 bg-card " + border}>
+      <div className="px-5 py-3 border-b flex items-center justify-between">
+        <h3 className={"text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 " + accent}>
+          {icon} {title}
+        </h3>
+        <span className="text-[11px] text-muted-foreground">{rows.length} facilities</span>
+      </div>
+      <ul className="divide-y">
+        {rows.slice(0, 5).map((r) => (
+          <li key={r.name} className="px-5 py-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium truncate">{r.name}</div>
+              <div className="text-[11px] text-muted-foreground">
+                {r.region} · {r.babies} babies enrolled
+              </div>
+            </div>
+            <span className={"text-[11px] font-semibold rounded-full px-2 py-0.5 tabular-nums " + chip}>
+              {r.adherence}%
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

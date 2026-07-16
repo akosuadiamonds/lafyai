@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderKanban, Plus, Users, Calendar as CalendarIcon, ChevronRight } from "lucide-react";
+import { FolderKanban, Plus, Users, Calendar as CalendarIcon, MoreHorizontal, Pencil, Trash2, PlayCircle, PauseCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -54,6 +71,7 @@ type Program = {
   description: string;
   antigen: string;
   startDate: string;
+  endDate?: string;
   cohorts: Cohort[];
 };
 
@@ -64,6 +82,7 @@ const SEED: Program[] = [
     description: "Routine EPI schedule plus Vitamin A supplementation.",
     antigen: "Mixed",
     startDate: "2026-01-01",
+    endDate: "2026-12-31",
     cohorts: [
       { id: "c1", name: "Q3 2026 · 6-week intake", ageBand: "6 weeks", size: 412, status: "active" },
       { id: "c2", name: "Q3 2026 · 14-week intake", ageBand: "14 weeks", size: 298, status: "active" },
@@ -76,6 +95,7 @@ const SEED: Program[] = [
     description: "OPV supplementary rounds in high-risk sub-counties.",
     antigen: "OPV",
     startDate: "2026-03-15",
+    endDate: "2026-09-30",
     cohorts: [
       { id: "c4", name: "Round 2 · Nairobi informal", ageBand: "0–59 months", size: 1240, status: "active" },
     ],

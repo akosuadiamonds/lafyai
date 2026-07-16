@@ -98,7 +98,10 @@ function PatientsPage() {
                   <XAxis dataKey="band" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
                   <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} width={36} />
                   <Tooltip
-                    contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                    cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+                    wrapperStyle={{ zIndex: 50, outline: "none" }}
+                    allowEscapeViewBox={{ x: true, y: true }}
+                    contentStyle={{ background: "hsl(var(--popover))", color: "hsl(var(--popover-foreground))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
                     formatter={(v: number) => [v.toLocaleString(), "Patients"]}
                   />
                   <Bar dataKey="count" radius={[6, 6, 0, 0]} fill="hsl(var(--primary))" />
@@ -177,7 +180,10 @@ function PatientsPage() {
                   <XAxis type="number" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} unit="%" />
                   <YAxis type="category" dataKey="stage" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} width={140} />
                   <Tooltip
-                    contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                    cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+                    wrapperStyle={{ zIndex: 50, outline: "none" }}
+                    allowEscapeViewBox={{ x: true, y: true }}
+                    contentStyle={{ background: "hsl(var(--popover))", color: "hsl(var(--popover-foreground))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
                     formatter={(v: number) => [`${v}%`, "Drop-off"]}
                   />
                   <Bar dataKey="drop" radius={[0, 6, 6, 0]}>

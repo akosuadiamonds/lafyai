@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, Minus, MapPin, Building2, TrendingUp, AlertTriangle } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, MapPin, Building2, TrendingUp, AlertTriangle, Target, Activity, Syringe } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,12 +30,52 @@ type Location = (typeof COVERAGE_BY_LOCATION)[number];
 function CoveragePage() {
   const [selectedLoc, setSelectedLoc] = useState<Location | null>(null);
 
+  const avgAntigen = Math.round(ANTIGENS.reduce((s, a) => s + a.coverage, 0) / ANTIGENS.length);
+  const avgLocation = Math.round(
+    COVERAGE_BY_LOCATION.reduce((s, l) => s + l.completion, 0) / COVERAGE_BY_LOCATION.length,
+  );
+  const onTarget = COVERAGE_BY_LOCATION.filter((l) => l.completion >= 90).length;
+  const belowTarget = COVERAGE_BY_LOCATION.length - onTarget;
+  const worstDropout = ANTIGENS.reduce((m, a) => (a.dropout > m.dropout ? a : m), ANTIGENS[0]);
+  const totalFacilities = COVERAGE_BY_LOCATION.reduce((s, l) => s + l.facilities, 0);
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Coverage"
         description="Immunization coverage against the 90% national target."
       />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <SummaryCard
+          label="Avg. antigen coverage"
+          value={`${avgAntigen}%`}
+          hint={`Target 90% · ${avgAntigen >= 90 ? "on track" : `${90 - avgAntigen} pts to go`}`}
+          icon={<Syringe className="h-4 w-4 text-primary" />}
+          tone={avgAntigen >= 90 ? "good" : avgAntigen >= 80 ? "warn" : "bad"}
+        />
+        <SummaryCard
+          label="Avg. location completion"
+          value={`${avgLocation}%`}
+          hint={`${totalFacilities.toLocaleString()} facilities tracked`}
+          icon={<Activity className="h-4 w-4 text-primary" />}
+          tone={avgLocation >= 90 ? "good" : avgLocation >= 80 ? "warn" : "bad"}
+        />
+        <SummaryCard
+          label="Locations on target"
+          value={`${onTarget}/${COVERAGE_BY_LOCATION.length}`}
+          hint={`${belowTarget} below 90%`}
+          icon={<Target className="h-4 w-4 text-primary" />}
+          tone={belowTarget === 0 ? "good" : belowTarget <= 2 ? "warn" : "bad"}
+        />
+        <SummaryCard
+          label="Highest dropout"
+          value={`${worstDropout.dropout}%`}
+          hint={worstDropout.antigen}
+          icon={<AlertTriangle className="h-4 w-4 text-amber-500" />}
+          tone={worstDropout.dropout > 10 ? "bad" : worstDropout.dropout > 5 ? "warn" : "good"}
+        />
+      </div>
 
       <Tabs defaultValue="antigen" className="space-y-4">
         <TabsList>

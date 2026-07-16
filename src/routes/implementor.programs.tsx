@@ -338,6 +338,7 @@ function ProgramsPage() {
 
 function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
   const [name, setName] = useState("");
+  // eslint-disable-next-line
   const [desc, setDesc] = useState("");
   const [antigen, setAntigen] = useState("Mixed");
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));

@@ -276,6 +276,35 @@ function MiniStat({ label, value, icon }: { label: string; value: string; icon: 
   );
 }
 
+function SummaryCard({
+  label,
+  value,
+  hint,
+  icon,
+  tone = "good",
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  icon: React.ReactNode;
+  tone?: "good" | "warn" | "bad";
+}) {
+  const bar = tone === "good" ? "bg-primary" : tone === "warn" ? "bg-amber-500" : "bg-destructive";
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+        {icon}
+      </div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="mt-2 flex items-center gap-2">
+        <span className={"inline-block h-1.5 w-8 rounded-full " + bar} />
+        <span className="text-[11px] text-muted-foreground truncate">{hint}</span>
+      </div>
+    </div>
+  );
+}
+
 function FacilitiesInLocation({ locationName }: { locationName: string }) {
   const facilities = FACILITIES_BY_LOCATION[locationName] ?? [];
   return (

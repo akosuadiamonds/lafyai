@@ -337,6 +337,33 @@ function ProgramsPage() {
 }
 
 function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
+  return _NewProgramDialogImpl({ onCreate });
+}
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+}: {
+  label: string;
+  value: string | number;
+  hint: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+        {icon}
+      </div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="mt-1 text-[11px] text-muted-foreground truncate">{hint}</div>
+    </div>
+  );
+}
+
+function _NewProgramDialogImpl({ onCreate }: { onCreate: (p: Program) => void }) {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [antigen, setAntigen] = useState("Mixed");

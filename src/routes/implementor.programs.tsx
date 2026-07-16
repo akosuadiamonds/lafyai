@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderKanban, Plus, Users, Calendar as CalendarIcon, MoreHorizontal, Pencil, Trash2, PlayCircle, PauseCircle } from "lucide-react";
+import { FolderKanban, Plus, Users, Calendar as CalendarIcon, MoreHorizontal, Pencil, Trash2, PlayCircle, PauseCircle, Layers, CheckCircle2, UserCheck } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -124,6 +124,16 @@ function ProgramsPage() {
     );
   };
 
+  const today = new Date().toISOString().slice(0, 10);
+  const totalPrograms = programs.length;
+  const activePrograms = programs.filter(
+    (p) => (!p.endDate || p.endDate >= today) && p.startDate <= today,
+  ).length;
+  const allCohorts = programs.flatMap((p) => p.cohorts);
+  const totalCohorts = allCohorts.length;
+  const activeCohorts = allCohorts.filter((c) => c.status === "active").length;
+  const totalEnrolled = allCohorts.reduce((s, c) => s + (c.size || 0), 0);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -146,6 +156,33 @@ function ProgramsPage() {
           </Dialog>
         }
       />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard
+          label="Programs"
+          value={totalPrograms}
+          hint={`${activePrograms} active`}
+          icon={<FolderKanban className="h-4 w-4 text-primary" />}
+        />
+        <StatCard
+          label="Cohorts"
+          value={totalCohorts}
+          hint={`${activeCohorts} active · ${totalCohorts - activeCohorts} closed`}
+          icon={<Layers className="h-4 w-4 text-primary" />}
+        />
+        <StatCard
+          label="Active cohorts"
+          value={activeCohorts}
+          hint={totalCohorts ? `${Math.round((activeCohorts / totalCohorts) * 100)}% of all cohorts` : "—"}
+          icon={<CheckCircle2 className="h-4 w-4 text-primary" />}
+        />
+        <StatCard
+          label="Total enrolled"
+          value={totalEnrolled.toLocaleString()}
+          hint="Across all cohorts"
+          icon={<UserCheck className="h-4 w-4 text-primary" />}
+        />
+      </div>
 
       <div className="grid grid-cols-1 gap-4">
         {programs.map((p) => (
@@ -300,6 +337,33 @@ function ProgramsPage() {
 }
 
 function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
+  return _NewProgramDialogImpl({ onCreate });
+}
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+}: {
+  label: string;
+  value: string | number;
+  hint: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+        {icon}
+      </div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="mt-1 text-[11px] text-muted-foreground truncate">{hint}</div>
+    </div>
+  );
+}
+
+function _NewProgramDialogImpl({ onCreate }: { onCreate: (p: Program) => void }) {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [antigen, setAntigen] = useState("Mixed");

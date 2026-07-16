@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderKanban, Plus, Users, Calendar as CalendarIcon, ChevronRight } from "lucide-react";
+import { FolderKanban, Plus, Users, Calendar as CalendarIcon, MoreHorizontal, Pencil, Trash2, PlayCircle, PauseCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -54,6 +71,7 @@ type Program = {
   description: string;
   antigen: string;
   startDate: string;
+  endDate?: string;
   cohorts: Cohort[];
 };
 
@@ -64,6 +82,7 @@ const SEED: Program[] = [
     description: "Routine EPI schedule plus Vitamin A supplementation.",
     antigen: "Mixed",
     startDate: "2026-01-01",
+    endDate: "2026-12-31",
     cohorts: [
       { id: "c1", name: "Q3 2026 · 6-week intake", ageBand: "6 weeks", size: 412, status: "active" },
       { id: "c2", name: "Q3 2026 · 14-week intake", ageBand: "14 weeks", size: 298, status: "active" },
@@ -76,6 +95,7 @@ const SEED: Program[] = [
     description: "OPV supplementary rounds in high-risk sub-counties.",
     antigen: "OPV",
     startDate: "2026-03-15",
+    endDate: "2026-09-30",
     cohorts: [
       { id: "c4", name: "Round 2 · Nairobi informal", ageBand: "0–59 months", size: 1240, status: "active" },
     ],
@@ -86,6 +106,23 @@ function ProgramsPage() {
   const [programs, setPrograms] = useState<Program[]>(SEED);
   const [addProgramOpen, setAddProgramOpen] = useState(false);
   const [cohortFor, setCohortFor] = useState<Program | null>(null);
+  const [editCohort, setEditCohort] = useState<{ program: Program; cohort: Cohort } | null>(null);
+  const [deleteCohort, setDeleteCohort] = useState<{ program: Program; cohort: Cohort } | null>(null);
+
+  const updateCohort = (programId: string, cohortId: string, patch: Partial<Cohort>) => {
+    setPrograms((prev) =>
+      prev.map((pr) =>
+        pr.id === programId
+          ? { ...pr, cohorts: pr.cohorts.map((c) => (c.id === cohortId ? { ...c, ...patch } : c)) }
+          : pr,
+      ),
+    );
+  };
+  const removeCohort = (programId: string, cohortId: string) => {
+    setPrograms((prev) =>
+      prev.map((pr) => (pr.id === programId ? { ...pr, cohorts: pr.cohorts.filter((c) => c.id !== cohortId) } : pr)),
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -123,7 +160,7 @@ function ProgramsPage() {
                     <div className="font-medium">{p.name}</div>
                     <div className="text-xs text-muted-foreground mt-0.5">{p.description}</div>
                     <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><CalendarIcon className="h-3.5 w-3.5" /> {p.startDate}</span>
+                      <span className="inline-flex items-center gap-1"><CalendarIcon className="h-3.5 w-3.5" /> {p.startDate}{p.endDate ? ` → ${p.endDate}` : ""}</span>
                       <span>·</span>
                       <span>{p.antigen}</span>
                       <span>·</span>
@@ -156,7 +193,44 @@ function ProgramsPage() {
                         <Badge variant={c.status === "active" ? "outline" : "secondary"} className={c.status === "active" ? "border-primary text-primary" : ""}>
                           {c.status}
                         </Badge>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditCohort({ program: p, cohort: c })}>
+                              <Pencil className="h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            {c.status === "active" ? (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  updateCohort(p.id, c.id, { status: "closed" });
+                                  toast.success(`Cohort "${c.name}" closed`);
+                                }}
+                              >
+                                <PauseCircle className="h-4 w-4" /> Close cohort
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  updateCohort(p.id, c.id, { status: "active" });
+                                  toast.success(`Cohort "${c.name}" activated`);
+                                }}
+                              >
+                                <PlayCircle className="h-4 w-4" /> Activate
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteCohort({ program: p, cohort: c })}
+                            >
+                              <Trash2 className="h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   ))
@@ -181,6 +255,46 @@ function ProgramsPage() {
           />
         )}
       </Dialog>
+
+      <Dialog open={!!editCohort} onOpenChange={(o) => !o && setEditCohort(null)}>
+        {editCohort && (
+          <EditCohortDialog
+            program={editCohort.program}
+            cohort={editCohort.cohort}
+            onSave={(patch) => {
+              updateCohort(editCohort.program.id, editCohort.cohort.id, patch);
+              setEditCohort(null);
+              toast.success("Cohort updated");
+            }}
+          />
+        )}
+      </Dialog>
+
+      <AlertDialog open={!!deleteCohort} onOpenChange={(o) => !o && setDeleteCohort(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete cohort?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove "{deleteCohort?.cohort.name}" from {deleteCohort?.program.name}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (deleteCohort) {
+                  removeCohort(deleteCohort.program.id, deleteCohort.cohort.id);
+                  toast.success(`Cohort "${deleteCohort.cohort.name}" deleted`);
+                  setDeleteCohort(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -190,6 +304,7 @@ function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
   const [desc, setDesc] = useState("");
   const [antigen, setAntigen] = useState("Mixed");
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState("");
 
   return (
     <DialogContent>
@@ -224,11 +339,21 @@ function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
             <Label htmlFor="pstart">Start date</Label>
             <Input id="pstart" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
+          <div className="space-y-1.5 col-span-2">
+            <Label htmlFor="pend">End date</Label>
+            <Input
+              id="pend"
+              type="date"
+              value={endDate}
+              min={startDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
         </div>
       </div>
       <DialogFooter>
         <Button
-          disabled={!name.trim()}
+          disabled={!name.trim() || (endDate !== "" && endDate < startDate)}
           onClick={() =>
             onCreate({
               id: `prog-${Date.now()}`,
@@ -236,11 +361,83 @@ function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
               description: desc.trim() || "—",
               antigen,
               startDate,
+              endDate: endDate || undefined,
               cohorts: [],
             })
           }
         >
           Create program
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
+
+function EditCohortDialog({
+  program,
+  cohort,
+  onSave,
+}: {
+  program: Program;
+  cohort: Cohort;
+  onSave: (patch: Partial<Cohort>) => void;
+}) {
+  const [name, setName] = useState(cohort.name);
+  const [ageBand, setAgeBand] = useState(cohort.ageBand);
+  const [size, setSize] = useState<number>(cohort.size);
+  const [status, setStatus] = useState<Cohort["status"]>(cohort.status);
+
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Edit cohort · {program.name}</DialogTitle>
+        <DialogDescription>Update cohort details or change its status.</DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4 py-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="ecname">Cohort name</Label>
+          <Input id="ecname" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Age band</Label>
+            <Select value={ageBand} onValueChange={setAgeBand}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["At birth", "6 weeks", "10 weeks", "14 weeks", "6 months", "9 months", "12 months", "18 months", "0–59 months"].map((a) => (
+                  <SelectItem key={a} value={a}>{a}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="ecsize">Enrolled</Label>
+            <Input
+              id="ecsize"
+              type="number"
+              min={0}
+              value={size}
+              onChange={(e) => setSize(Number(e.target.value) || 0)}
+            />
+          </div>
+          <div className="space-y-1.5 col-span-2">
+            <Label>Status</Label>
+            <Select value={status} onValueChange={(v) => setStatus(v as Cohort["status"])}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button
+          disabled={!name.trim()}
+          onClick={() => onSave({ name: name.trim(), ageBand, size, status })}
+        >
+          Save changes
         </Button>
       </DialogFooter>
     </DialogContent>

@@ -373,6 +373,77 @@ function NewProgramDialog({ onCreate }: { onCreate: (p: Program) => void }) {
   );
 }
 
+function EditCohortDialog({
+  program,
+  cohort,
+  onSave,
+}: {
+  program: Program;
+  cohort: Cohort;
+  onSave: (patch: Partial<Cohort>) => void;
+}) {
+  const [name, setName] = useState(cohort.name);
+  const [ageBand, setAgeBand] = useState(cohort.ageBand);
+  const [size, setSize] = useState<number>(cohort.size);
+  const [status, setStatus] = useState<Cohort["status"]>(cohort.status);
+
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Edit cohort · {program.name}</DialogTitle>
+        <DialogDescription>Update cohort details or change its status.</DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4 py-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="ecname">Cohort name</Label>
+          <Input id="ecname" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Age band</Label>
+            <Select value={ageBand} onValueChange={setAgeBand}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["At birth", "6 weeks", "10 weeks", "14 weeks", "6 months", "9 months", "12 months", "18 months", "0–59 months"].map((a) => (
+                  <SelectItem key={a} value={a}>{a}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="ecsize">Enrolled</Label>
+            <Input
+              id="ecsize"
+              type="number"
+              min={0}
+              value={size}
+              onChange={(e) => setSize(Number(e.target.value) || 0)}
+            />
+          </div>
+          <div className="space-y-1.5 col-span-2">
+            <Label>Status</Label>
+            <Select value={status} onValueChange={(v) => setStatus(v as Cohort["status"])}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button
+          disabled={!name.trim()}
+          onClick={() => onSave({ name: name.trim(), ageBand, size, status })}
+        >
+          Save changes
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  );
+}
+
 function NewCohortDialog({ program, onCreate }: { program: Program; onCreate: (c: Cohort) => void }) {
   const [name, setName] = useState("");
   const [ageBand, setAgeBand] = useState("6 weeks");

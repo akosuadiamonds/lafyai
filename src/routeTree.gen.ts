@@ -25,6 +25,7 @@ import { Route as AdminSeAlertsRouteImport } from './routes/admin.se-alerts'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
 import { Route as AdminOverviewRouteImport } from './routes/admin.overview'
 import { Route as AdminImplementorsRouteImport } from './routes/admin.implementors'
+import { Route as AdminFacilitiesRouteImport } from './routes/admin.facilities'
 import { Route as AdminCoverageRouteImport } from './routes/admin.coverage'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAccessRouteImport } from './routes/admin.access'
@@ -111,6 +112,11 @@ const AdminImplementorsRoute = AdminImplementorsRouteImport.update({
   path: '/implementors',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminFacilitiesRoute = AdminFacilitiesRouteImport.update({
+  id: '/facilities',
+  path: '/facilities',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCoverageRoute = AdminCoverageRouteImport.update({
   id: '/coverage',
   path: '/coverage',
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/access': typeof AdminAccessRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/coverage': typeof AdminCoverageRoute
+  '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/programs': typeof AdminProgramsRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/admin/access': typeof AdminAccessRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/coverage': typeof AdminCoverageRoute
+  '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/programs': typeof AdminProgramsRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/admin/access': typeof AdminAccessRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/coverage': typeof AdminCoverageRoute
+  '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/programs': typeof AdminProgramsRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/admin/access'
     | '/admin/audit'
     | '/admin/coverage'
+    | '/admin/facilities'
     | '/admin/implementors'
     | '/admin/overview'
     | '/admin/programs'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/admin/access'
     | '/admin/audit'
     | '/admin/coverage'
+    | '/admin/facilities'
     | '/admin/implementors'
     | '/admin/overview'
     | '/admin/programs'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/admin/access'
     | '/admin/audit'
     | '/admin/coverage'
+    | '/admin/facilities'
     | '/admin/implementors'
     | '/admin/overview'
     | '/admin/programs'
@@ -398,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImplementorsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/facilities': {
+      id: '/admin/facilities'
+      path: '/facilities'
+      fullPath: '/admin/facilities'
+      preLoaderRoute: typeof AdminFacilitiesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/coverage': {
       id: '/admin/coverage'
       path: '/coverage'
@@ -440,6 +459,7 @@ interface AdminRouteChildren {
   AdminAccessRoute: typeof AdminAccessRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminCoverageRoute: typeof AdminCoverageRoute
+  AdminFacilitiesRoute: typeof AdminFacilitiesRoute
   AdminImplementorsRoute: typeof AdminImplementorsRoute
   AdminOverviewRoute: typeof AdminOverviewRoute
   AdminProgramsRoute: typeof AdminProgramsRoute
@@ -451,6 +471,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAccessRoute: AdminAccessRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminCoverageRoute: AdminCoverageRoute,
+  AdminFacilitiesRoute: AdminFacilitiesRoute,
   AdminImplementorsRoute: AdminImplementorsRoute,
   AdminOverviewRoute: AdminOverviewRoute,
   AdminProgramsRoute: AdminProgramsRoute,

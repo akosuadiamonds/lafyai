@@ -26,6 +26,7 @@ import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
 import { Route as AdminOverviewRouteImport } from './routes/admin.overview'
 import { Route as AdminImplementorsRouteImport } from './routes/admin.implementors'
 import { Route as AdminCoverageRouteImport } from './routes/admin.coverage'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAccessRouteImport } from './routes/admin.access'
 import { Route as ImplementorFacilitiesIndexRouteImport } from './routes/implementor.facilities.index'
 import { Route as ImplementorFacilitiesSlugRouteImport } from './routes/implementor.facilities.$slug'
@@ -115,6 +116,11 @@ const AdminCoverageRoute = AdminCoverageRouteImport.update({
   path: '/coverage',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAccessRoute = AdminAccessRouteImport.update({
   id: '/access',
   path: '/access',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/implementor': typeof ImplementorRouteWithChildren
   '/admin/access': typeof AdminAccessRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/implementors': typeof AdminImplementorsRoute
   '/admin/overview': typeof AdminOverviewRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/access': typeof AdminAccessRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/implementors': typeof AdminImplementorsRoute
   '/admin/overview': typeof AdminOverviewRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/implementor': typeof ImplementorRouteWithChildren
   '/admin/access': typeof AdminAccessRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/implementors': typeof AdminImplementorsRoute
   '/admin/overview': typeof AdminOverviewRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/implementor'
     | '/admin/access'
+    | '/admin/audit'
     | '/admin/coverage'
     | '/admin/implementors'
     | '/admin/overview'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin/access'
+    | '/admin/audit'
     | '/admin/coverage'
     | '/admin/implementors'
     | '/admin/overview'
@@ -248,6 +259,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/implementor'
     | '/admin/access'
+    | '/admin/audit'
     | '/admin/coverage'
     | '/admin/implementors'
     | '/admin/overview'
@@ -393,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCoverageRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/access': {
       id: '/admin/access'
       path: '/access'
@@ -419,6 +438,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAccessRoute: typeof AdminAccessRoute
+  AdminAuditRoute: typeof AdminAuditRoute
   AdminCoverageRoute: typeof AdminCoverageRoute
   AdminImplementorsRoute: typeof AdminImplementorsRoute
   AdminOverviewRoute: typeof AdminOverviewRoute
@@ -429,6 +449,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAccessRoute: AdminAccessRoute,
+  AdminAuditRoute: AdminAuditRoute,
   AdminCoverageRoute: AdminCoverageRoute,
   AdminImplementorsRoute: AdminImplementorsRoute,
   AdminOverviewRoute: AdminOverviewRoute,

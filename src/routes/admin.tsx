@@ -9,31 +9,26 @@ import {
 } from "@tanstack/react-router";
 import {
   LayoutDashboard,
-  Syringe,
   Building2,
   FolderKanban,
+  Syringe,
   AlertTriangle,
-  FileDown,
+  ShieldCheck,
+  ScrollText,
   Leaf,
-  Bell,
-  Search,
-  Users,
   Menu,
   LogOut,
   User as UserIcon,
-  Settings as SettingsIcon,
+  Bell,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { initials, loadAuthState, roleHome } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,50 +37,46 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { SE_ALERTS } from "@/lib/lafy-data";
+import { CROSS_ALERTS } from "@/lib/admin-data";
 
-export const Route = createFileRoute("/implementor")({
+export const Route = createFileRoute("/admin")({
   ssr: false,
   beforeLoad: async () => {
     const state = await loadAuthState();
     if (!state) throw redirect({ to: "/auth" });
-    if (state.role !== "implementor") {
+    if (state.role !== "super_admin") {
       throw redirect({ to: state.role ? roleHome[state.role] : "/auth" });
     }
     return { auth: state };
   },
-  component: ImplementorLayout,
+  component: AdminLayout,
 });
 
 const NAV = [
-  { to: "/implementor/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/implementor/patients", label: "Patients", icon: Users },
-  { to: "/implementor/coverage", label: "Coverage", icon: Syringe },
-  { to: "/implementor/facilities", label: "Facilities", icon: Building2 },
-  { to: "/implementor/programs", label: "Programs", icon: FolderKanban },
-  { to: "/implementor/se-alerts", label: "SE Alerts", icon: AlertTriangle },
-  { to: "/implementor/reports", label: "Reports & Exports", icon: FileDown },
+  { to: "/admin/overview", label: "Overview", icon: LayoutDashboard },
+  { to: "/admin/implementors", label: "Implementors", icon: Building2 },
+  { to: "/admin/programs", label: "Programs", icon: FolderKanban },
+  { to: "/admin/coverage", label: "Coverage", icon: Syringe },
+  { to: "/admin/se-alerts", label: "SE Alerts", icon: AlertTriangle },
+  { to: "/admin/access", label: "Access management", icon: ShieldCheck },
+  { to: "/admin/audit", label: "Audit log", icon: ScrollText },
 ] as const;
 
-function ImplementorLayout() {
+function AdminLayout() {
   const { auth } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const name = auth.profile?.full_name || auth.email;
-  const org = auth.profile?.organisation || "Implementor";
-  const region = auth.profile?.region;
+  const openAlerts = CROSS_ALERTS.filter((a) => a.status !== "resolved").slice(0, 5);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     toast.success("Signed out");
     navigate({ to: "/auth", replace: true });
   };
-
-  const openAlerts = SE_ALERTS.filter((a) => a.status !== "resolved").slice(0, 5);
 
   const SidebarInner = ({ onNavigate }: { onNavigate?: () => void }) => (
     <>
@@ -95,7 +86,7 @@ function ImplementorLayout() {
         </div>
         <div className="leading-tight">
           <div className="font-semibold tracking-tight">lafyai</div>
-          <div className="text-[11px] text-sidebar-foreground/60">Implementor console</div>
+          <div className="text-[11px] text-sidebar-foreground/60">Super admin console</div>
         </div>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -149,17 +140,19 @@ function ImplementorLayout() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64 bg-sidebar text-sidebar-foreground flex flex-col border-r-0">
+            <SheetContent
+              side="left"
+              className="p-0 w-64 bg-sidebar text-sidebar-foreground flex flex-col border-r-0"
+            >
               <SidebarInner onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
           <div className="md:hidden font-semibold flex items-center gap-2">
             <Leaf className="h-5 w-5 text-primary" /> lafyai
           </div>
-          <div className="relative flex-1 max-w-md hidden sm:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search facilities, cohorts, indicators…" className="pl-9" />
-          </div>
+          <Badge variant="secondary" className="hidden sm:inline-flex">
+            National oversight
+          </Badge>
           <div className="ml-auto flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -172,35 +165,29 @@ function ImplementorLayout() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
                 <DropdownMenuLabel className="flex items-center justify-between">
-                  <span>Notifications</span>
-                  <Badge variant="secondary" className="tabular-nums">{openAlerts.length} open</Badge>
+                  <span>Cross-implementor alerts</span>
+                  <Badge variant="secondary" className="tabular-nums">
+                    {openAlerts.length} open
+                  </Badge>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {openAlerts.length === 0 && (
-                  <div className="px-3 py-6 text-center text-sm text-muted-foreground">You're all caught up.</div>
-                )}
                 {openAlerts.map((a) => (
                   <DropdownMenuItem
                     key={a.id}
-                    onClick={() => navigate({ to: "/implementor/se-alerts" })}
+                    onClick={() => navigate({ to: "/admin/se-alerts" })}
                     className="flex flex-col items-start gap-0.5 py-2"
                   >
-                    <div className="flex items-center gap-2 w-full">
-                      <span
-                        className={cn(
-                          "h-1.5 w-1.5 rounded-full",
-                          a.severity === "critical" ? "bg-destructive" : a.severity === "moderate" ? "bg-amber-500" : "bg-primary",
-                        )}
-                      />
-                      <span className="text-sm font-medium truncate">{a.detail}</span>
-                    </div>
-                    <span className="text-[11px] text-muted-foreground pl-3.5">
-                      {a.facility} · {a.reportedAt}
+                    <span className="text-sm font-medium truncate">{a.detail}</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {a.implementor} · {a.facility} · {a.reportedAt}
                     </span>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/implementor/se-alerts" })} className="justify-center text-primary">
+                <DropdownMenuItem
+                  onClick={() => navigate({ to: "/admin/se-alerts" })}
+                  className="justify-center text-primary"
+                >
                   View all SE alerts
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -208,12 +195,14 @@ function ImplementorLayout() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full hover:bg-muted/60 pr-1 pl-1 py-0.5 transition-colors" aria-label="Open profile menu">
+                <button
+                  className="flex items-center gap-2 rounded-full hover:bg-muted/60 px-1 py-0.5 transition-colors"
+                  aria-label="Open profile menu"
+                >
                   <div className="hidden sm:flex flex-col items-end leading-tight mr-1">
                     <span className="text-sm font-medium">{name}</span>
                     <span className="text-xs text-muted-foreground">
-                      {region ? `${region} · ` : ""}
-                      {org}
+                      {auth.profile?.organisation || "Super admin"}
                     </span>
                   </div>
                   <Avatar className="h-9 w-9">
@@ -231,14 +220,14 @@ function ImplementorLayout() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => toast("Profile is view-only in this demo.")}>
-                  <UserIcon className="h-4 w-4" /> My profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => toast("Settings are view-only in this demo.")}>
-                  <SettingsIcon className="h-4 w-4" /> Preferences
+                <DropdownMenuItem onClick={() => navigate({ to: "/admin/access" })}>
+                  <UserIcon className="h-4 w-4" /> Access management
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="text-destructive focus:text-destructive"
+                >
                   <LogOut className="h-4 w-4" /> Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>

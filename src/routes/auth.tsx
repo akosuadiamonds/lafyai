@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Leaf, ShieldCheck, Stethoscope, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Leaf, Loader2, ShieldCheck, Stethoscope } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const Route = createFileRoute("/auth")({
@@ -35,13 +34,24 @@ export const Route = createFileRoute("/auth")({
 });
 
 const ROLE_CARDS: { role: AppRole; icon: typeof Leaf; blurb: string }[] = [
-  { role: "implementor", icon: Stethoscope, blurb: "Run programs, cohorts and facilities" },
-  { role: "super_admin", icon: ShieldCheck, blurb: "Oversee implementors nationally" },
+  {
+    role: "implementor",
+    icon: Stethoscope,
+    blurb: "Run immunization programs, cohorts, facilities and follow-up",
+  },
+  {
+    role: "super_admin",
+    icon: ShieldCheck,
+    blurb: "Oversee implementors nationally, manage users and access",
+  },
 ];
+
+type Step = "role" | "signin" | "signup";
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<AppRole>("implementor");
+  const [role, setRole] = useState<AppRole | null>(null);
+  const [step, setStep] = useState<Step>("role");
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState(false);
 
@@ -147,68 +157,89 @@ function AuthPage() {
   }
 
   return (
-    <main className="min-h-screen grid lg:grid-cols-2 bg-background">
-      <section className="hidden lg:flex flex-col justify-between bg-sidebar text-sidebar-foreground p-10">
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-sidebar-primary text-sidebar-primary-foreground grid place-items-center">
+    <main className="min-h-screen bg-muted/30 px-4 py-10 md:py-16">
+      <div className="mx-auto w-full max-w-xl space-y-8">
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground grid place-items-center">
             <Leaf className="h-5 w-5" />
           </div>
-          <span className="font-semibold tracking-tight">lafyai</span>
+          <span className="text-lg font-semibold tracking-tight">lafyai</span>
         </div>
-        <div className="space-y-4 max-w-sm">
-          <h2 className="text-3xl font-bold leading-tight">
-            Immunization monitoring for implementors and national oversight.
-          </h2>
-          <p className="text-sm text-sidebar-foreground/70">
-            Coverage, adherence, cohorts and safety events — one console per role, with anonymized
-            follow-up data.
-          </p>
-        </div>
-        <p className="text-xs text-sidebar-foreground/50">v2.4 · All data anonymized</p>
-      </section>
 
-      <section className="flex items-center justify-center p-6 md:p-10">
-        <div className="w-full max-w-md space-y-6">
-          <div className="lg:hidden flex items-center gap-2">
-            <Leaf className="h-5 w-5 text-primary" />
-            <span className="font-semibold">lafyai</span>
-          </div>
+        {step === "role" && (
+          <div className="space-y-6">
+            <header className="text-center space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight">How will you use lafyai?</h1>
+              <p className="text-muted-foreground">
+                Select your role to personalize your experience
+              </p>
+            </header>
 
-          <div className="space-y-3">
-            <h1 className="text-2xl font-bold tracking-tight">Choose your console</h1>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3">
               {ROLE_CARDS.map(({ role: r, icon: Icon, blurb }) => (
                 <button
                   key={r}
                   type="button"
-                  onClick={() => setRole(r)}
-                  aria-pressed={role === r}
+                  onClick={() => {
+                    setRole(r);
+                    setStep("signin");
+                  }}
                   className={cn(
-                    "rounded-lg border p-3 text-left transition-colors",
-                    role === r
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-input hover:bg-muted/60",
+                    "group w-full rounded-xl border bg-card p-4 text-left transition-all",
+                    "flex items-center gap-4 hover:border-primary hover:shadow-sm",
+                    role === r ? "border-primary ring-1 ring-primary" : "border-border",
                   )}
                 >
-                  <Icon className="h-4 w-4 text-primary" />
-                  <div className="mt-2 text-sm font-medium">{roleLabel[r]}</div>
-                  <div className="text-[11px] text-muted-foreground leading-snug">{blurb}</div>
+                  <span className="h-12 w-12 shrink-0 rounded-xl bg-muted text-muted-foreground grid place-items-center transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-semibold">
+                      I&apos;m {r === "implementor" ? "an" : "a"} {roleLabel[r]}
+                    </span>
+                    <span className="block truncate text-sm text-muted-foreground">{blurb}</span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                 </button>
               ))}
             </div>
           </div>
+        )}
 
-          <Tabs defaultValue="signin">
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Sign up</TabsTrigger>
-            </TabsList>
+        {step !== "role" && role && (
+          <div className="space-y-6">
+            <button
+              type="button"
+              onClick={() => setStep("role")}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Change role
+            </button>
 
-            <TabsContent value="signin" className="pt-4">
-              <form onSubmit={handleSignIn} className="space-y-4">
+            <header className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight">
+                {step === "signin" ? "Welcome back" : "Create your account"}
+              </h1>
+              <p className="text-muted-foreground">
+                Continuing as{" "}
+                <span className="font-medium text-foreground">{roleLabel[role]}</span>
+              </p>
+            </header>
+
+            {step === "signin" ? (
+              <form onSubmit={handleSignIn} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="si-email">Email</Label>
-                  <Input id="si-email" name="email" type="email" required autoComplete="email" />
+                  <Label htmlFor="si-email">Email address</Label>
+                  <Input
+                    id="si-email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    className="h-12"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="si-password">Password</Label>
@@ -218,28 +249,61 @@ function AuthPage() {
                     type="password"
                     required
                     autoComplete="current-password"
+                    className="h-12"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={busy}>
-                  {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Sign in as {roleLabel[role].toLowerCase()}
+                <Button type="submit" className="w-full h-12 text-base" disabled={busy}>
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  Continue
+                  {!busy && <ArrowRight className="h-4 w-4" />}
                 </Button>
+                <p className="text-center text-sm text-muted-foreground">
+                  Don&apos;t have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setStep("signup")}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Sign up
+                  </button>
+                </p>
               </form>
-            </TabsContent>
-
-            <TabsContent value="signup" className="pt-4">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="su-name">Full name</Label>
-                  <Input id="su-name" name="full_name" required maxLength={80} />
+            ) : (
+              <form onSubmit={handleSignUp} className="space-y-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="su-name">Full name</Label>
+                    <Input
+                      id="su-name"
+                      name="full_name"
+                      required
+                      maxLength={80}
+                      placeholder="Ama Mensah"
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="su-org">Organisation</Label>
+                    <Input
+                      id="su-org"
+                      name="organisation"
+                      maxLength={80}
+                      placeholder="Optional"
+                      className="h-12"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="su-org">Organisation</Label>
-                  <Input id="su-org" name="organisation" maxLength={80} placeholder="Optional" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="su-email">Email</Label>
-                  <Input id="su-email" name="email" type="email" required autoComplete="email" />
+                  <Label htmlFor="su-email">Email address</Label>
+                  <Input
+                    id="su-email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    className="h-12"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="su-password">Password</Label>
@@ -250,24 +314,36 @@ function AuthPage() {
                     required
                     minLength={8}
                     autoComplete="new-password"
+                    className="h-12"
                   />
-                  <p className="text-[11px] text-muted-foreground">At least 8 characters.</p>
+                  <p className="text-xs text-muted-foreground">At least 8 characters.</p>
                 </div>
                 {role === "super_admin" && (
-                  <p className="text-[11px] text-muted-foreground rounded-md bg-muted/60 p-2">
+                  <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
                     Super admin sign-ups are reviewed — an existing super admin approves access from
                     the Access management page.
                   </p>
                 )}
-                <Button type="submit" className="w-full" disabled={busy}>
-                  {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Create {roleLabel[role].toLowerCase()} account
+                <Button type="submit" className="w-full h-12 text-base" disabled={busy}>
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  Continue
+                  {!busy && <ArrowRight className="h-4 w-4" />}
                 </Button>
+                <p className="text-center text-sm text-muted-foreground">
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setStep("signin")}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </p>
               </form>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
+            )}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

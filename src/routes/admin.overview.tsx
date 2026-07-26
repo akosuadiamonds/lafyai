@@ -8,6 +8,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
+import { useState } from "react";
 import { Building2, Users, Syringe, AlertTriangle, ArrowUpRight } from "lucide-react";
 
 import { PageHeader } from "@/components/lafy/page-header";
@@ -15,7 +16,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { IMPLEMENTORS, NATIONAL_TREND, CROSS_ALERTS } from "@/lib/admin-data";
+import {
+  IMPLEMENTORS,
+  NATIONAL_TREND,
+  CROSS_ALERTS,
+  USER_SEGMENTS,
+  TOTAL_PLATFORM_USERS,
+} from "@/lib/admin-data";
+import { cn as _cn } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/overview")({
@@ -66,8 +74,55 @@ function Kpi({
   );
 }
 
+function TotalUsersCard() {
+  const [segment, setSegment] = useState<"all" | (typeof USER_SEGMENTS)[number]["key"]>("all");
+  const selected = USER_SEGMENTS.find((s) => s.key === segment);
+  const total = selected ? selected.total : TOTAL_PLATFORM_USERS;
+  const active = selected
+    ? selected.active
+    : USER_SEGMENTS.reduce((s, u) => s + u.active, 0);
+
+  const chips: { key: typeof segment; label: string }[] = [
+    { key: "all", label: "All" },
+    ...USER_SEGMENTS.map((s) => ({ key: s.key as typeof segment, label: s.label })),
+  ];
+
+  return (
+    <Card className="sm:col-span-2">
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Total users · all portals
+          </span>
+          <Users className="h-4 w-4 text-primary" />
+        </div>
+        <div className="mt-2 text-3xl font-bold tabular-nums">{total.toLocaleString()}</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {active.toLocaleString()} active
+          {selected ? ` · +${selected.newThisMonth} new this month` : " across every portal"}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {chips.map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setSegment(c.key)}
+              className={_cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                segment === c.key
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function AdminOverview() {
-  const activeImplementors = IMPLEMENTORS.filter((i) => i.status === "active").length;
   const facilities = IMPLEMENTORS.reduce((s, i) => s + i.facilities, 0);
   const patients = IMPLEMENTORS.reduce((s, i) => s + i.patients, 0);
   const coverage = Math.round(
@@ -93,13 +148,8 @@ function AdminOverview() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <Kpi
-          icon={Building2}
-          label="Implementors"
-          value={String(IMPLEMENTORS.length)}
-          sub={`${activeImplementors} active`}
-        />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <TotalUsersCard />
         <Kpi icon={Building2} label="Facilities" value={String(facilities)} sub="Across 6 regions" />
         <Kpi
           icon={Users}

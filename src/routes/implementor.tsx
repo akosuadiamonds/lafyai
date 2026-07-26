@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Outlet, createFileRoute, Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  Link,
+  useRouterState,
+  useNavigate,
+} from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Syringe,
@@ -17,6 +24,8 @@ import {
   Settings as SettingsIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { initials, loadAuthState, roleHome } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -38,6 +47,15 @@ import { toast } from "sonner";
 import { SE_ALERTS } from "@/lib/lafy-data";
 
 export const Route = createFileRoute("/implementor")({
+  ssr: false,
+  beforeLoad: async () => {
+    const state = await loadAuthState();
+    if (!state) throw redirect({ to: "/auth" });
+    if (state.role !== "implementor") {
+      throw redirect({ to: state.role ? roleHome[state.role] : "/auth" });
+    }
+    return { auth: state };
+  },
   component: ImplementorLayout,
 });
 
@@ -52,13 +70,19 @@ const NAV = [
 ] as const;
 
 function ImplementorLayout() {
+  const { auth } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleSignOut = () => {
+  const name = auth.profile?.full_name || auth.email;
+  const org = auth.profile?.organisation || "Implementor";
+  const region = auth.profile?.region;
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
     toast.success("Signed out");
-    navigate({ to: "/" });
+    navigate({ to: "/auth", replace: true });
   };
 
   const openAlerts = SE_ALERTS.filter((a) => a.status !== "resolved").slice(0, 5);
@@ -186,19 +210,24 @@ function ImplementorLayout() {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full hover:bg-muted/60 pr-1 pl-1 py-0.5 transition-colors" aria-label="Open profile menu">
                   <div className="hidden sm:flex flex-col items-end leading-tight mr-1">
-                    <span className="text-sm font-medium">Amara Okoye</span>
-                    <span className="text-xs text-muted-foreground">Nairobi region · Lead</span>
+                    <span className="text-sm font-medium">{name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {region ? `${region} · ` : ""}
+                      {org}
+                    </span>
                   </div>
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary text-primary-foreground">AO</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {initials(name)}
+                    </AvatarFallback>
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60">
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
-                    <span>Amara Okoye</span>
-                    <span className="text-xs font-normal text-muted-foreground">amara.okoye@lafy.health</span>
+                    <span>{name}</span>
+                    <span className="text-xs font-normal text-muted-foreground">{auth.email}</span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

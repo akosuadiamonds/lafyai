@@ -15,6 +15,8 @@ import {
   AlertTriangle,
   ShieldCheck,
   ScrollText,
+  CreditCard,
+  Sparkles,
   Leaf,
   Menu,
   LogOut,
@@ -56,11 +58,14 @@ export const Route = createFileRoute("/admin")({
 const NAV = [
   { to: "/admin/overview", label: "Overview", icon: LayoutDashboard },
   { to: "/admin/implementors", label: "Implementors", icon: Building2 },
+  { to: "/admin/facilities", label: "Facilities", icon: Building2 },
   { to: "/admin/programs", label: "Programs", icon: FolderKanban },
   { to: "/admin/coverage", label: "Coverage", icon: Syringe },
   { to: "/admin/se-alerts", label: "SE Alerts", icon: AlertTriangle },
-  { to: "/admin/access", label: "Access management", icon: ShieldCheck },
+  { to: "/admin/users", label: "User management", icon: ShieldCheck },
+  { to: "/admin/billing", label: "Billing & Subscription", icon: CreditCard },
   { to: "/admin/audit", label: "Audit log", icon: ScrollText },
+  { to: "/admin/insights", label: "Insights", icon: Sparkles },
 ] as const;
 
 function AdminLayout() {
@@ -220,8 +225,8 @@ function AdminLayout() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/admin/access" })}>
-                  <UserIcon className="h-4 w-4" /> Access management
+                <DropdownMenuItem onClick={() => navigate({ to: "/admin/users" })}>
+                  <UserIcon className="h-4 w-4" /> User management
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

@@ -25,6 +25,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSeAlertsRouteImport } from './routes/admin.se-alerts'
 import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
 import { Route as AdminOverviewRouteImport } from './routes/admin.overview'
+import { Route as AdminInsightsRouteImport } from './routes/admin.insights'
 import { Route as AdminImplementorsRouteImport } from './routes/admin.implementors'
 import { Route as AdminFacilitiesRouteImport } from './routes/admin.facilities'
 import { Route as AdminCoverageRouteImport } from './routes/admin.coverage'
@@ -113,6 +114,11 @@ const AdminOverviewRoute = AdminOverviewRouteImport.update({
   path: '/overview',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminInsightsRoute = AdminInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminImplementorsRoute = AdminImplementorsRouteImport.update({
   id: '/implementors',
   path: '/implementors',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
+  '/admin/insights': typeof AdminInsightsRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/admin/se-alerts': typeof AdminSeAlertsRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
+  '/admin/insights': typeof AdminInsightsRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/admin/se-alerts': typeof AdminSeAlertsRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
+  '/admin/insights': typeof AdminInsightsRoute
   '/admin/overview': typeof AdminOverviewRoute
   '/admin/programs': typeof AdminProgramsRoute
   '/admin/se-alerts': typeof AdminSeAlertsRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/admin/coverage'
     | '/admin/facilities'
     | '/admin/implementors'
+    | '/admin/insights'
     | '/admin/overview'
     | '/admin/programs'
     | '/admin/se-alerts'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/admin/coverage'
     | '/admin/facilities'
     | '/admin/implementors'
+    | '/admin/insights'
     | '/admin/overview'
     | '/admin/programs'
     | '/admin/se-alerts'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/admin/coverage'
     | '/admin/facilities'
     | '/admin/implementors'
+    | '/admin/insights'
     | '/admin/overview'
     | '/admin/programs'
     | '/admin/se-alerts'
@@ -422,6 +434,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOverviewRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/insights': {
+      id: '/admin/insights'
+      path: '/insights'
+      fullPath: '/admin/insights'
+      preLoaderRoute: typeof AdminInsightsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/implementors': {
       id: '/admin/implementors'
       path: '/implementors'
@@ -480,6 +499,7 @@ interface AdminRouteChildren {
   AdminCoverageRoute: typeof AdminCoverageRoute
   AdminFacilitiesRoute: typeof AdminFacilitiesRoute
   AdminImplementorsRoute: typeof AdminImplementorsRoute
+  AdminInsightsRoute: typeof AdminInsightsRoute
   AdminOverviewRoute: typeof AdminOverviewRoute
   AdminProgramsRoute: typeof AdminProgramsRoute
   AdminSeAlertsRoute: typeof AdminSeAlertsRoute
@@ -493,6 +513,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCoverageRoute: AdminCoverageRoute,
   AdminFacilitiesRoute: AdminFacilitiesRoute,
   AdminImplementorsRoute: AdminImplementorsRoute,
+  AdminInsightsRoute: AdminInsightsRoute,
   AdminOverviewRoute: AdminOverviewRoute,
   AdminProgramsRoute: AdminProgramsRoute,
   AdminSeAlertsRoute: AdminSeAlertsRoute,

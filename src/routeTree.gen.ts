@@ -10,20 +10,36 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ImplementorRouteImport } from './routes/implementor'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImplementorIndexRouteImport } from './routes/implementor.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ImplementorSeAlertsRouteImport } from './routes/implementor.se-alerts'
 import { Route as ImplementorReportsRouteImport } from './routes/implementor.reports'
 import { Route as ImplementorProgramsRouteImport } from './routes/implementor.programs'
 import { Route as ImplementorPatientsRouteImport } from './routes/implementor.patients'
 import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
 import { Route as ImplementorCoverageRouteImport } from './routes/implementor.coverage'
+import { Route as AdminProgramsRouteImport } from './routes/admin.programs'
+import { Route as AdminOverviewRouteImport } from './routes/admin.overview'
+import { Route as AdminImplementorsRouteImport } from './routes/admin.implementors'
 import { Route as ImplementorFacilitiesIndexRouteImport } from './routes/implementor.facilities.index'
 import { Route as ImplementorFacilitiesSlugRouteImport } from './routes/implementor.facilities.$slug'
 
 const ImplementorRoute = ImplementorRouteImport.update({
   id: '/implementor',
   path: '/implementor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +51,11 @@ const ImplementorIndexRoute = ImplementorIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ImplementorRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ImplementorSeAlertsRoute = ImplementorSeAlertsRouteImport.update({
   id: '/se-alerts',
@@ -66,6 +87,21 @@ const ImplementorCoverageRoute = ImplementorCoverageRouteImport.update({
   path: '/coverage',
   getParentRoute: () => ImplementorRoute,
 } as any)
+const AdminProgramsRoute = AdminProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOverviewRoute = AdminOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminImplementorsRoute = AdminImplementorsRouteImport.update({
+  id: '/implementors',
+  path: '/implementors',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ImplementorFacilitiesIndexRoute =
   ImplementorFacilitiesIndexRouteImport.update({
     id: '/facilities/',
@@ -81,25 +117,36 @@ const ImplementorFacilitiesSlugRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
   '/implementor': typeof ImplementorRouteWithChildren
+  '/admin/implementors': typeof AdminImplementorsRoute
+  '/admin/overview': typeof AdminOverviewRoute
+  '/admin/programs': typeof AdminProgramsRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/patients': typeof ImplementorPatientsRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
+  '/admin/': typeof AdminIndexRoute
   '/implementor/': typeof ImplementorIndexRoute
   '/implementor/facilities/$slug': typeof ImplementorFacilitiesSlugRoute
   '/implementor/facilities/': typeof ImplementorFacilitiesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/admin/implementors': typeof AdminImplementorsRoute
+  '/admin/overview': typeof AdminOverviewRoute
+  '/admin/programs': typeof AdminProgramsRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/patients': typeof ImplementorPatientsRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
+  '/admin': typeof AdminIndexRoute
   '/implementor': typeof ImplementorIndexRoute
   '/implementor/facilities/$slug': typeof ImplementorFacilitiesSlugRoute
   '/implementor/facilities': typeof ImplementorFacilitiesIndexRoute
@@ -107,13 +154,19 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRoute
   '/implementor': typeof ImplementorRouteWithChildren
+  '/admin/implementors': typeof AdminImplementorsRoute
+  '/admin/overview': typeof AdminOverviewRoute
+  '/admin/programs': typeof AdminProgramsRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
   '/implementor/patients': typeof ImplementorPatientsRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
   '/implementor/se-alerts': typeof ImplementorSeAlertsRoute
+  '/admin/': typeof AdminIndexRoute
   '/implementor/': typeof ImplementorIndexRoute
   '/implementor/facilities/$slug': typeof ImplementorFacilitiesSlugRoute
   '/implementor/facilities/': typeof ImplementorFacilitiesIndexRoute
@@ -122,38 +175,55 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
+    | '/auth'
     | '/implementor'
+    | '/admin/implementors'
+    | '/admin/overview'
+    | '/admin/programs'
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/patients'
     | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/se-alerts'
+    | '/admin/'
     | '/implementor/'
     | '/implementor/facilities/$slug'
     | '/implementor/facilities/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
+    | '/admin/implementors'
+    | '/admin/overview'
+    | '/admin/programs'
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/patients'
     | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/se-alerts'
+    | '/admin'
     | '/implementor'
     | '/implementor/facilities/$slug'
     | '/implementor/facilities'
   id:
     | '__root__'
     | '/'
+    | '/admin'
+    | '/auth'
     | '/implementor'
+    | '/admin/implementors'
+    | '/admin/overview'
+    | '/admin/programs'
     | '/implementor/coverage'
     | '/implementor/dashboard'
     | '/implementor/patients'
     | '/implementor/programs'
     | '/implementor/reports'
     | '/implementor/se-alerts'
+    | '/admin/'
     | '/implementor/'
     | '/implementor/facilities/$slug'
     | '/implementor/facilities/'
@@ -161,6 +231,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ImplementorRoute: typeof ImplementorRouteWithChildren
 }
 
@@ -171,6 +243,20 @@ declare module '@tanstack/react-router' {
       path: '/implementor'
       fullPath: '/implementor'
       preLoaderRoute: typeof ImplementorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -186,6 +272,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/implementor/'
       preLoaderRoute: typeof ImplementorIndexRouteImport
       parentRoute: typeof ImplementorRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/implementor/se-alerts': {
       id: '/implementor/se-alerts'
@@ -229,6 +322,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImplementorCoverageRouteImport
       parentRoute: typeof ImplementorRoute
     }
+    '/admin/programs': {
+      id: '/admin/programs'
+      path: '/programs'
+      fullPath: '/admin/programs'
+      preLoaderRoute: typeof AdminProgramsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/overview': {
+      id: '/admin/overview'
+      path: '/overview'
+      fullPath: '/admin/overview'
+      preLoaderRoute: typeof AdminOverviewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/implementors': {
+      id: '/admin/implementors'
+      path: '/implementors'
+      fullPath: '/admin/implementors'
+      preLoaderRoute: typeof AdminImplementorsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/implementor/facilities/': {
       id: '/implementor/facilities/'
       path: '/facilities'
@@ -245,6 +359,22 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminRouteChildren {
+  AdminImplementorsRoute: typeof AdminImplementorsRoute
+  AdminOverviewRoute: typeof AdminOverviewRoute
+  AdminProgramsRoute: typeof AdminProgramsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminImplementorsRoute: AdminImplementorsRoute,
+  AdminOverviewRoute: AdminOverviewRoute,
+  AdminProgramsRoute: AdminProgramsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface ImplementorRouteChildren {
   ImplementorCoverageRoute: typeof ImplementorCoverageRoute
@@ -276,18 +406,10 @@ const ImplementorRouteWithChildren = ImplementorRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  AuthRoute: AuthRoute,
   ImplementorRoute: ImplementorRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

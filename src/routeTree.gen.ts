@@ -28,6 +28,7 @@ import { Route as AdminOverviewRouteImport } from './routes/admin.overview'
 import { Route as AdminImplementorsRouteImport } from './routes/admin.implementors'
 import { Route as AdminFacilitiesRouteImport } from './routes/admin.facilities'
 import { Route as AdminCoverageRouteImport } from './routes/admin.coverage'
+import { Route as AdminBillingRouteImport } from './routes/admin.billing'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as ImplementorFacilitiesIndexRouteImport } from './routes/implementor.facilities.index'
 import { Route as ImplementorFacilitiesSlugRouteImport } from './routes/implementor.facilities.$slug'
@@ -127,6 +128,11 @@ const AdminCoverageRoute = AdminCoverageRouteImport.update({
   path: '/coverage',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBillingRoute = AdminBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/implementor': typeof ImplementorRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/billing': typeof AdminBillingRoute
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/billing': typeof AdminBillingRoute
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/implementor': typeof ImplementorRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/billing': typeof AdminBillingRoute
   '/admin/coverage': typeof AdminCoverageRoute
   '/admin/facilities': typeof AdminFacilitiesRoute
   '/admin/implementors': typeof AdminImplementorsRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/implementor'
     | '/admin/audit'
+    | '/admin/billing'
     | '/admin/coverage'
     | '/admin/facilities'
     | '/admin/implementors'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin/audit'
+    | '/admin/billing'
     | '/admin/coverage'
     | '/admin/facilities'
     | '/admin/implementors'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/implementor'
     | '/admin/audit'
+    | '/admin/billing'
     | '/admin/coverage'
     | '/admin/facilities'
     | '/admin/implementors'
@@ -431,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCoverageRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/billing': {
+      id: '/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AdminBillingRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/audit'
@@ -457,6 +476,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminBillingRoute: typeof AdminBillingRoute
   AdminCoverageRoute: typeof AdminCoverageRoute
   AdminFacilitiesRoute: typeof AdminFacilitiesRoute
   AdminImplementorsRoute: typeof AdminImplementorsRoute
@@ -469,6 +489,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminBillingRoute: AdminBillingRoute,
   AdminCoverageRoute: AdminCoverageRoute,
   AdminFacilitiesRoute: AdminFacilitiesRoute,
   AdminImplementorsRoute: AdminImplementorsRoute,

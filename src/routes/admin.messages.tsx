@@ -36,7 +36,7 @@ import {
   MESSAGE_VOLUME_TREND,
 } from "@/lib/lafy-data";
 
-export const Route = createFileRoute("/implementor/messages")({
+export const Route = createFileRoute("/admin/messages")({
   head: () => ({
     meta: [
       { title: "Message log — lafyai" },

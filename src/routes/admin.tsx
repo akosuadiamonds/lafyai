@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   CreditCard,
   Sparkles,
+  MessageSquare,
   Leaf,
   Menu,
   LogOut,
@@ -59,6 +60,7 @@ const NAV = [
   { to: "/admin/programs", label: "Programs", icon: FolderKanban },
   { to: "/admin/users", label: "User management", icon: ShieldCheck },
   { to: "/admin/billing", label: "Billing & Subscription", icon: CreditCard },
+  { to: "/admin/messages", label: "Message Log", icon: MessageSquare },
   { to: "/admin/insights", label: "Insights", icon: Sparkles },
 ] as const;
 

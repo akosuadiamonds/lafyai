@@ -250,48 +250,8 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* Right: Triage & Alerts */}
+        {/* Right: Triage */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
-          {/* SE Alerts — critical panel */}
-          <div className="rounded-xl border border-destructive/25 bg-destructive/5 shadow-sm overflow-hidden">
-            <div className="px-4 py-3 bg-destructive flex items-center justify-between">
-              <h3 className="text-xs font-bold text-destructive-foreground uppercase tracking-wider">
-                Critical alerts (SE)
-              </h3>
-              <span className="bg-background text-destructive text-[10px] font-black px-1.5 py-0.5 rounded">
-                {openAlerts.length} OPEN
-              </span>
-            </div>
-            <div className="divide-y divide-destructive/10">
-              {openAlerts.slice(0, 4).map((a) => (
-                <div key={a.id} className="p-4">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-[10px] font-bold text-destructive uppercase tracking-wider truncate">
-                      {a.facility}
-                    </span>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase">
-                      {a.severity}
-                    </span>
-                  </div>
-                  <p className="text-xs text-foreground/80 font-medium leading-relaxed">
-                    {a.detail}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-1 font-mono">
-                    {a.dose} · batch {a.batch}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="p-3 border-t border-destructive/10 bg-background">
-              <Link
-                to="/implementor/se-alerts"
-                className="w-full py-1.5 text-[10px] font-bold text-destructive uppercase tracking-widest hover:bg-destructive/5 rounded transition-colors inline-flex items-center justify-center gap-1"
-              >
-                All alerts <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
-          </div>
-
           {/* Facility performance combined */}
           <div className="rounded-xl border bg-card shadow-sm">
             <div className="px-4 py-3 border-b">

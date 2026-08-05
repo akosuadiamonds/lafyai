@@ -227,3 +227,5 @@ export const PLATFORM_INSIGHTS = [
   { title: "WhatsApp outperforms voice by 13 points", detail: "Shifting voice-first cohorts to WhatsApp could lift confirmations in Eastern and Central.", impact: "medium" as const },
   { title: "Health worker activation improving", detail: "902 of 1,042 health workers active this month, up from 814 in May.", impact: "low" as const },
 ];
+
+export const ENROLMENT_GENDER = { maleShare: 0.51, femaleShare: 0.49 };

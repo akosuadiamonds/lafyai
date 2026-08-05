@@ -22,9 +22,9 @@ import {
   CROSS_ALERTS,
   USER_SEGMENTS,
   TOTAL_PLATFORM_USERS,
+  ENROLMENT_GENDER,
 } from "@/lib/admin-data";
 import { cn as _cn } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/overview")({
   head: () => ({
@@ -123,6 +123,54 @@ function TotalUsersCard() {
 }
 
 function AdminOverview() {
+  return <AdminOverviewInner />;
+}
+
+function ChildrenEnrolledCard({ total }: { total: number }) {
+  const [gender, setGender] = useState<"all" | "male" | "female">("all");
+  const male = Math.round(total * ENROLMENT_GENDER.maleShare);
+  const female = total - male;
+  const value = gender === "male" ? male : gender === "female" ? female : total;
+
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Children enrolled
+          </span>
+          <Users className="h-4 w-4 text-primary" />
+        </div>
+        <div className="mt-2 text-3xl font-bold tabular-nums">{value.toLocaleString()}</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {male.toLocaleString()} male · {female.toLocaleString()} female
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {([
+            { key: "all", label: "All" },
+            { key: "male", label: "Male" },
+            { key: "female", label: "Female" },
+          ] as const).map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setGender(c.key)}
+              className={_cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                gender === c.key
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AdminOverviewInner() {
   const facilities = IMPLEMENTORS.reduce((s, i) => s + i.facilities, 0);
   const patients = IMPLEMENTORS.reduce((s, i) => s + i.patients, 0);
   const coverage = Math.round(
@@ -130,33 +178,17 @@ function AdminOverview() {
   );
   const openAlerts = IMPLEMENTORS.reduce((s, i) => s + i.openAlerts, 0);
 
-  const ranked = [...IMPLEMENTORS].sort((a, b) => b.coverage - a.coverage);
-  const top = ranked.slice(0, 3);
-  const bottom = ranked.slice(-3).reverse();
-
   return (
     <div className="space-y-6">
       <PageHeader
         title="National overview"
-        description="Rollup across every implementor on the platform."
-        actions={
-          <Button asChild variant="outline">
-            <Link to="/admin/implementors">
-              All implementors <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        }
+        description="Rollup across the platform."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <TotalUsersCard />
         <Kpi icon={Building2} label="Facilities" value={String(facilities)} sub="Across 6 regions" />
-        <Kpi
-          icon={Users}
-          label="Children enrolled"
-          value={patients.toLocaleString()}
-          sub="All programs"
-        />
+        <ChildrenEnrolledCard total={patients} />
         <Kpi icon={Syringe} label="National coverage" value={`${coverage}%`} sub="Target 90%" />
         <Kpi
           icon={AlertTriangle}
@@ -230,38 +262,6 @@ function AdminOverview() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {[
-          { title: "Top performing implementors", rows: top, tone: "text-primary" },
-          { title: "Needs attention", rows: bottom, tone: "text-destructive" },
-        ].map((block) => (
-          <Card key={block.title}>
-            <CardHeader>
-              <CardTitle className="text-base">{block.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {block.rows.map((i) => (
-                <Link
-                  key={i.slug}
-                  to="/admin/implementors"
-                  className="block rounded-md p-2 -m-2 hover:bg-muted/60 transition-colors"
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{i.name}</span>
-                    <span className={cn("tabular-nums font-semibold", block.tone)}>
-                      {i.coverage}%
-                    </span>
-                  </div>
-                  <Progress value={i.coverage} className="mt-2 h-1.5" />
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    {i.region} · {i.facilities} facilities · {i.patients.toLocaleString()} children
-                  </div>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }

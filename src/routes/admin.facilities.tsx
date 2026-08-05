@@ -313,7 +313,7 @@ function AdminFacilities() {
                 <TableHead>Implementor</TableHead>
                 <TableHead>Plan</TableHead>
                 <TableHead className="text-right">Seats</TableHead>
-                <TableHead className="text-right">Coverage</TableHead>
+                <TableHead className="text-right">Completion</TableHead>
                 <TableHead>Renews</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>

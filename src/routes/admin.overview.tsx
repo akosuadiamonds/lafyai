@@ -138,25 +138,13 @@ function AdminOverview() {
     <div className="space-y-6">
       <PageHeader
         title="National overview"
-        description="Rollup across every implementor on the platform."
-        actions={
-          <Button asChild variant="outline">
-            <Link to="/admin/implementors">
-              All implementors <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        }
+        description="Rollup across the platform."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <TotalUsersCard />
         <Kpi icon={Building2} label="Facilities" value={String(facilities)} sub="Across 6 regions" />
-        <Kpi
-          icon={Users}
-          label="Children enrolled"
-          value={patients.toLocaleString()}
-          sub="All programs"
-        />
+        <ChildrenEnrolledCard total={patients} />
         <Kpi icon={Syringe} label="National coverage" value={`${coverage}%`} sub="Target 90%" />
         <Kpi
           icon={AlertTriangle}
@@ -230,38 +218,6 @@ function AdminOverview() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {[
-          { title: "Top performing implementors", rows: top, tone: "text-primary" },
-          { title: "Needs attention", rows: bottom, tone: "text-destructive" },
-        ].map((block) => (
-          <Card key={block.title}>
-            <CardHeader>
-              <CardTitle className="text-base">{block.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {block.rows.map((i) => (
-                <Link
-                  key={i.slug}
-                  to="/admin/implementors"
-                  className="block rounded-md p-2 -m-2 hover:bg-muted/60 transition-colors"
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{i.name}</span>
-                    <span className={cn("tabular-nums font-semibold", block.tone)}>
-                      {i.coverage}%
-                    </span>
-                  </div>
-                  <Progress value={i.coverage} className="mt-2 h-1.5" />
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    {i.region} · {i.facilities} facilities · {i.patients.toLocaleString()} children
-                  </div>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }

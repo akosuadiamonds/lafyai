@@ -198,8 +198,8 @@ function AdminOverviewInner() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <div className="grid gap-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">National coverage & adherence trend</CardTitle>
           </CardHeader>
@@ -228,36 +228,6 @@ function AdminOverviewInner() {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className="text-base">Latest SE alerts</CardTitle>
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/admin/se-alerts">All alerts</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {CROSS_ALERTS.filter((a) => a.status !== "resolved")
-              .slice(0, 4)
-              .map((a) => (
-                <div key={a.id} className="rounded-md border p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium">{a.name}</span>
-                    <Badge
-                      variant={a.severity === "critical" ? "destructive" : "secondary"}
-                      className="capitalize"
-                    >
-                      {a.severity}
-                    </Badge>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{a.detail}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {a.implementor} · {a.facility} · {a.reportedAt}
-                  </p>
-                </div>
-              ))}
           </CardContent>
         </Card>
       </div>

@@ -67,7 +67,6 @@ const NAV = [
   { to: "/implementor/facilities", label: "Facilities", icon: Building2 },
   { to: "/implementor/programs", label: "Programs", icon: FolderKanban },
   { to: "/implementor/se-alerts", label: "SE Alerts", icon: AlertTriangle },
-  { to: "/implementor/messages", label: "Message Log", icon: MessageSquare },
   { to: "/implementor/reports", label: "Reports & Exports", icon: FileDown },
 ] as const;
 

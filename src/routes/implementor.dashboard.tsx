@@ -15,6 +15,7 @@ import {
   KPIS,
   NEEDS_ATTENTION,
   PROGRAMS,
+  SE_ALERTS,
   TOP_FACILITIES,
 } from "@/lib/lafy-data";
 
@@ -297,6 +298,42 @@ function DashboardPage() {
               >
                 View all facilities
               </Link>
+            </div>
+          </div>
+
+          {/* Latest SE alerts */}
+          <div className="rounded-xl border bg-card shadow-sm">
+            <div className="px-4 py-3 border-b flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-tight">Latest SE alerts</h3>
+              <Link
+                to="/implementor/se-alerts"
+                className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground"
+              >
+                All alerts
+              </Link>
+            </div>
+            <div className="p-4 space-y-3">
+              {SE_ALERTS.filter((a) => a.status !== "resolved")
+                .slice(0, 4)
+                .map((a) => (
+                  <div key={a.id} className="rounded-lg border p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-foreground truncate">{a.name}</span>
+                      <span
+                        className={
+                          "text-[9px] font-black uppercase tracking-widest shrink-0 " +
+                          (a.severity === "critical" ? "text-destructive" : "text-amber-600")
+                        }
+                      >
+                        {a.severity}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">{a.detail}</p>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      {a.facility} · {a.reportedAt}
+                    </p>
+                  </div>
+                ))}
             </div>
           </div>
         </div>

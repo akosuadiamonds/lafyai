@@ -123,6 +123,54 @@ function TotalUsersCard() {
 }
 
 function AdminOverview() {
+  return <AdminOverviewInner />;
+}
+
+function ChildrenEnrolledCard({ total }: { total: number }) {
+  const [gender, setGender] = useState<"all" | "male" | "female">("all");
+  const male = Math.round(total * ENROLMENT_GENDER.maleShare);
+  const female = total - male;
+  const value = gender === "male" ? male : gender === "female" ? female : total;
+
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Children enrolled
+          </span>
+          <Users className="h-4 w-4 text-primary" />
+        </div>
+        <div className="mt-2 text-3xl font-bold tabular-nums">{value.toLocaleString()}</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {male.toLocaleString()} male · {female.toLocaleString()} female
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {([
+            { key: "all", label: "All" },
+            { key: "male", label: "Male" },
+            { key: "female", label: "Female" },
+          ] as const).map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setGender(c.key)}
+              className={_cn(
+                "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                gender === c.key
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AdminOverviewInner() {
   const facilities = IMPLEMENTORS.reduce((s, i) => s + i.facilities, 0);
   const patients = IMPLEMENTORS.reduce((s, i) => s + i.patients, 0);
   const coverage = Math.round(

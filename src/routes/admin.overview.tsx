@@ -22,9 +22,9 @@ import {
   CROSS_ALERTS,
   USER_SEGMENTS,
   TOTAL_PLATFORM_USERS,
+  ENROLMENT_GENDER,
 } from "@/lib/admin-data";
 import { cn as _cn } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/overview")({
   head: () => ({

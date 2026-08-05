@@ -38,6 +38,8 @@ import {
   BILLING_ACCOUNTS,
   PLAN_CATALOGUE,
   REVENUE_TREND,
+  ADMIN_FACILITIES,
+  IMPLEMENTORS,
   type BillingAccount,
   type BillingPlan,
 } from "@/lib/admin-data";
@@ -91,6 +93,8 @@ function AdminBilling() {
   const [accounts, setAccounts] = useState<BillingAccount[]>(BILLING_ACCOUNTS);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
+    subscriberType: "implementor" as "implementor" | "facility",
+    subscriber: IMPLEMENTORS[0]?.name ?? "",
     account: "",
     plan: "Growth" as BillingPlan,
     cycle: "Monthly" as BillingAccount["cycle"],
@@ -109,18 +113,19 @@ function AdminBilling() {
   const seats = accounts.reduce((s, a) => s + a.seats, 0);
 
   const createAccount = () => {
-    if (!form.account.trim()) {
-      toast.error("Account name is required");
+    const name = form.account.trim() || form.subscriber;
+    if (!name) {
+      toast.error("Select or name the subscriber");
       return;
     }
     const price = PLAN_CATALOGUE.find((p) => p.plan === form.plan)!.pricePerMonth;
     setAccounts((prev) => [
       {
         id: `acc-${1000 + prev.length + 1}`,
-        account: form.account.trim(),
-        implementor: form.account.trim(),
+        account: name,
+        implementor: form.subscriberType === "implementor" ? name : form.subscriber,
         plan: form.plan,
-        facilities: Number(form.facilities) || 0,
+        facilities: form.subscriberType === "facility" ? 1 : Number(form.facilities) || 0,
         seats: Number(form.seats) || 0,
         amount: form.cycle === "Annual" ? price * 12 : price,
         cycle: form.cycle,
@@ -129,7 +134,15 @@ function AdminBilling() {
       },
       ...prev,
     ]);
-    setForm({ account: "", plan: "Growth", cycle: "Monthly", seats: "20", facilities: "5" });
+    setForm({
+      subscriberType: "implementor",
+      subscriber: IMPLEMENTORS[0]?.name ?? "",
+      account: "",
+      plan: "Growth",
+      cycle: "Monthly",
+      seats: "20",
+      facilities: "5",
+    });
     setOpen(false);
     toast.success("Billing account created");
   };
@@ -155,12 +168,51 @@ function AdminBilling() {
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="account">Account name</Label>
+                  <Label>Subscription for</Label>
+                  <Select
+                    value={form.subscriberType}
+                    onValueChange={(v) =>
+                      setForm({
+                        ...form,
+                        subscriberType: v as "implementor" | "facility",
+                        subscriber:
+                          v === "implementor"
+                            ? (IMPLEMENTORS[0]?.name ?? "")
+                            : (ADMIN_FACILITIES[0]?.name ?? ""),
+                      })
+                    }
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="implementor">Implementor</SelectItem>
+                      <SelectItem value="facility">Facility</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{form.subscriberType === "implementor" ? "Implementor" : "Facility"}</Label>
+                  <Select
+                    value={form.subscriber}
+                    onValueChange={(v) => setForm({ ...form, subscriber: v })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      {(form.subscriberType === "implementor"
+                        ? IMPLEMENTORS.map((i) => i.name)
+                        : ADMIN_FACILITIES.map((f) => f.name)
+                      ).map((n) => (
+                        <SelectItem key={n} value={n}>{n}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="account">Account name (optional)</Label>
                   <Input
                     id="account"
                     value={form.account}
                     onChange={(e) => setForm({ ...form, account: e.target.value })}
-                    placeholder="e.g. Northern Health Alliance"
+                    placeholder={form.subscriber || "e.g. Northern Health Alliance"}
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -202,15 +254,17 @@ function AdminBilling() {
                       onChange={(e) => setForm({ ...form, seats: e.target.value })}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="facilities">Facilities</Label>
-                    <Input
-                      id="facilities"
-                      type="number"
-                      value={form.facilities}
-                      onChange={(e) => setForm({ ...form, facilities: e.target.value })}
-                    />
-                  </div>
+                  {form.subscriberType === "implementor" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="facilities">Facilities</Label>
+                      <Input
+                        id="facilities"
+                        type="number"
+                        value={form.facilities}
+                        onChange={(e) => setForm({ ...form, facilities: e.target.value })}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               <DialogFooter>

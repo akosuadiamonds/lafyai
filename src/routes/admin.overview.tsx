@@ -130,10 +130,6 @@ function AdminOverview() {
   );
   const openAlerts = IMPLEMENTORS.reduce((s, i) => s + i.openAlerts, 0);
 
-  const ranked = [...IMPLEMENTORS].sort((a, b) => b.coverage - a.coverage);
-  const top = ranked.slice(0, 3);
-  const bottom = ranked.slice(-3).reverse();
-
   return (
     <div className="space-y-6">
       <PageHeader

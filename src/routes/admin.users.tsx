@@ -119,8 +119,9 @@ function AdminUsers() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const pending = (requests.data ?? []).filter((r) => r.status === "pending");
-  const roles = Array.from(new Set(users.map((u) => u.role)));
+  const roles = Array.from(new Set(users.map((u) => u.role))).filter(
+    (r) => r !== "Super admin" && r !== "Implementor lead",
+  );
 
   const rows = useMemo(
     () =>
@@ -149,55 +150,6 @@ function AdminUsers() {
         title="User management"
         description="Users and roles across every portal, with facility scope and account actions."
       />
-
-      <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-primary" /> Pending super admin requests
-          </CardTitle>
-          <Badge variant="secondary">{pending.length} pending</Badge>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {requests.isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-          {!requests.isLoading && pending.length === 0 && (
-            <p className="text-sm text-muted-foreground">No requests waiting for review.</p>
-          )}
-          {pending.map((r) => (
-            <div
-              key={r.id}
-              className="flex flex-col gap-2 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div>
-                <div className="text-sm font-medium">{r.full_name || r.email}</div>
-                <div className="text-xs text-muted-foreground">
-                  {r.email} · requested {new Date(r.requested_at).toLocaleDateString()}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  disabled={decide.isPending}
-                  onClick={() =>
-                    decide.mutate({ id: r.id, userId: r.user_id, email: r.email, approve: true })
-                  }
-                >
-                  <Check className="h-4 w-4" /> Approve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={decide.isPending}
-                  onClick={() =>
-                    decide.mutate({ id: r.id, userId: r.user_id, email: r.email, approve: false })
-                  }
-                >
-                  <X className="h-4 w-4" /> Deny
-                </Button>
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader className="gap-4">

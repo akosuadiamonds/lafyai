@@ -14,7 +14,6 @@ import {
   FolderKanban,
   AlertTriangle,
   FileDown,
-  MessageSquare,
   Leaf,
   Bell,
   Search,

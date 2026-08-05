@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   AreaChart,
   Area,
@@ -13,13 +13,10 @@ import { Building2, Users, Syringe, AlertTriangle, ArrowUpRight } from "lucide-r
 
 import { PageHeader } from "@/components/lafy/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   IMPLEMENTORS,
   NATIONAL_TREND,
-  CROSS_ALERTS,
   USER_SEGMENTS,
   TOTAL_PLATFORM_USERS,
   ENROLMENT_GENDER,

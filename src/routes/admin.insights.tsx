@@ -88,12 +88,6 @@ function AdminInsights() {
           icon={Users}
         />
         <Stat
-          label="Sessions"
-          value={latest.sessions.toLocaleString()}
-          sub="Last full month"
-          icon={Activity}
-        />
-        <Stat
           label="Confirmation rate"
           value={`${latest.confirmations}%`}
           sub="Reminder → confirmed visit"

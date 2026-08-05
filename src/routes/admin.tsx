@@ -60,11 +60,8 @@ const NAV = [
   { to: "/admin/implementors", label: "Implementors", icon: Building2 },
   { to: "/admin/facilities", label: "Facilities", icon: Building2 },
   { to: "/admin/programs", label: "Programs", icon: FolderKanban },
-  { to: "/admin/coverage", label: "Coverage", icon: Syringe },
-  { to: "/admin/se-alerts", label: "SE Alerts", icon: AlertTriangle },
   { to: "/admin/users", label: "User management", icon: ShieldCheck },
   { to: "/admin/billing", label: "Billing & Subscription", icon: CreditCard },
-  { to: "/admin/audit", label: "Audit log", icon: ScrollText },
   { to: "/admin/insights", label: "Insights", icon: Sparkles },
 ] as const;
 

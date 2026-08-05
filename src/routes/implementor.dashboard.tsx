@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownRight, ArrowUpRight, ChevronRight, Minus } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -15,7 +15,6 @@ import {
   KPIS,
   NEEDS_ATTENTION,
   PROGRAMS,
-  SE_ALERTS,
   TOP_FACILITIES,
 } from "@/lib/lafy-data";
 
@@ -23,7 +22,7 @@ export const Route = createFileRoute("/implementor/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — lafyai" },
-      { name: "description", content: "Program overview: KPIs, on-time adherence, top facilities, SE alerts." },
+      { name: "description", content: "Program overview: KPIs, coverage summary, on-time adherence and facility performance." },
     ],
   }),
   component: DashboardPage,
@@ -67,8 +66,6 @@ function DashboardPage() {
   const atRisk = antigens.filter((a) => a.coverage < 80).length;
   const sortedAntigens = [...antigens].sort((a, b) => b.coverage - a.coverage);
   const sortedLocations = [...locations].sort((a, b) => b.completion - a.completion);
-  const openAlerts = SE_ALERTS.filter((a) => a.status !== "resolved");
-
   const kpis = KPIS.map((k, i) =>
     i === 0 ? { ...k, value: `${adj(82)}%` } : k,
   );

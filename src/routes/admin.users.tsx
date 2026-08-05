@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, MoreHorizontal, Search, ShieldCheck, X } from "lucide-react";
+import { MoreHorizontal, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/lafy/page-header";
@@ -32,7 +31,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { supabase } from "@/integrations/supabase/client";
 import { PLATFORM_USERS, type PlatformUser } from "@/lib/admin-data";
 
 export const Route = createFileRoute("/admin/users")({
@@ -63,61 +61,10 @@ const STATUS_TONE: Record<PlatformUser["status"], "secondary" | "outline" | "des
 };
 
 function AdminUsers() {
-  const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [role, setRole] = useState("all");
   const [status, setStatus] = useState("all");
   const [users, setUsers] = useState<PlatformUser[]>(PLATFORM_USERS);
-
-  const requests = useQuery({
-    queryKey: ["admin-requests"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("admin_requests")
-        .select("*")
-        .order("requested_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const decide = useMutation({
-    mutationFn: async ({
-      id,
-      userId,
-      email,
-      approve,
-    }: {
-      id: string;
-      userId: string;
-      email: string;
-      approve: boolean;
-    }) => {
-      if (approve) {
-        const { error } = await supabase
-          .from("user_roles")
-          .insert({ user_id: userId, role: "super_admin" });
-        if (error && !error.message.includes("duplicate")) throw error;
-      }
-      const { error: reqError } = await supabase
-        .from("admin_requests")
-        .update({ status: approve ? "approved" : "denied", decided_at: new Date().toISOString() })
-        .eq("id", id);
-      if (reqError) throw reqError;
-
-      await supabase.from("audit_log").insert({
-        action: approve ? "admin_request_approved" : "admin_request_denied",
-        target: email,
-        detail: `Super admin access ${approve ? "granted to" : "denied for"} ${email}`,
-      });
-    },
-    onSuccess: (_d, vars) => {
-      toast.success(vars.approve ? "Super admin access granted" : "Request denied");
-      qc.invalidateQueries({ queryKey: ["admin-requests"] });
-      qc.invalidateQueries({ queryKey: ["audit-log"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
 
   const roles = Array.from(new Set(users.map((u) => u.role))).filter(
     (r) => r !== "Super admin" && r !== "Implementor lead",

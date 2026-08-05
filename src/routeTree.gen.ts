@@ -19,6 +19,7 @@ import { Route as ImplementorSeAlertsRouteImport } from './routes/implementor.se
 import { Route as ImplementorReportsRouteImport } from './routes/implementor.reports'
 import { Route as ImplementorProgramsRouteImport } from './routes/implementor.programs'
 import { Route as ImplementorPatientsRouteImport } from './routes/implementor.patients'
+import { Route as ImplementorMessagesRouteImport } from './routes/implementor.messages'
 import { Route as ImplementorDashboardRouteImport } from './routes/implementor.dashboard'
 import { Route as ImplementorCoverageRouteImport } from './routes/implementor.coverage'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -82,6 +83,11 @@ const ImplementorProgramsRoute = ImplementorProgramsRouteImport.update({
 const ImplementorPatientsRoute = ImplementorPatientsRouteImport.update({
   id: '/patients',
   path: '/patients',
+  getParentRoute: () => ImplementorRoute,
+} as any)
+const ImplementorMessagesRoute = ImplementorMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => ImplementorRoute,
 } as any)
 const ImplementorDashboardRoute = ImplementorDashboardRouteImport.update({
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
+  '/implementor/messages': typeof ImplementorMessagesRoute
   '/implementor/patients': typeof ImplementorPatientsRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
+  '/implementor/messages': typeof ImplementorMessagesRoute
   '/implementor/patients': typeof ImplementorPatientsRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/implementor/coverage': typeof ImplementorCoverageRoute
   '/implementor/dashboard': typeof ImplementorDashboardRoute
+  '/implementor/messages': typeof ImplementorMessagesRoute
   '/implementor/patients': typeof ImplementorPatientsRoute
   '/implementor/programs': typeof ImplementorProgramsRoute
   '/implementor/reports': typeof ImplementorReportsRoute
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/implementor/coverage'
     | '/implementor/dashboard'
+    | '/implementor/messages'
     | '/implementor/patients'
     | '/implementor/programs'
     | '/implementor/reports'
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/implementor/coverage'
     | '/implementor/dashboard'
+    | '/implementor/messages'
     | '/implementor/patients'
     | '/implementor/programs'
     | '/implementor/reports'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/implementor/coverage'
     | '/implementor/dashboard'
+    | '/implementor/messages'
     | '/implementor/patients'
     | '/implementor/programs'
     | '/implementor/reports'
@@ -390,6 +402,13 @@ declare module '@tanstack/react-router' {
       path: '/patients'
       fullPath: '/implementor/patients'
       preLoaderRoute: typeof ImplementorPatientsRouteImport
+      parentRoute: typeof ImplementorRoute
+    }
+    '/implementor/messages': {
+      id: '/implementor/messages'
+      path: '/messages'
+      fullPath: '/implementor/messages'
+      preLoaderRoute: typeof ImplementorMessagesRouteImport
       parentRoute: typeof ImplementorRoute
     }
     '/implementor/dashboard': {
@@ -526,6 +545,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface ImplementorRouteChildren {
   ImplementorCoverageRoute: typeof ImplementorCoverageRoute
   ImplementorDashboardRoute: typeof ImplementorDashboardRoute
+  ImplementorMessagesRoute: typeof ImplementorMessagesRoute
   ImplementorPatientsRoute: typeof ImplementorPatientsRoute
   ImplementorProgramsRoute: typeof ImplementorProgramsRoute
   ImplementorReportsRoute: typeof ImplementorReportsRoute
@@ -538,6 +558,7 @@ interface ImplementorRouteChildren {
 const ImplementorRouteChildren: ImplementorRouteChildren = {
   ImplementorCoverageRoute: ImplementorCoverageRoute,
   ImplementorDashboardRoute: ImplementorDashboardRoute,
+  ImplementorMessagesRoute: ImplementorMessagesRoute,
   ImplementorPatientsRoute: ImplementorPatientsRoute,
   ImplementorProgramsRoute: ImplementorProgramsRoute,
   ImplementorReportsRoute: ImplementorReportsRoute,

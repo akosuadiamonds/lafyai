@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Lightbulb, Activity, Users, MessageSquare } from "lucide-react";
+import { Lightbulb, Users, MessageSquare } from "lucide-react";
 
 import { PageHeader } from "@/components/lafy/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,7 +80,7 @@ function AdminInsights() {
         description="Where the platform is winning, where it is stuck, and what to act on next."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Stat
           label="Monthly active users"
           value={latest.activeUsers.toLocaleString()}
